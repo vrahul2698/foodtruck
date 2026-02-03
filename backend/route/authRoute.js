@@ -7,22 +7,21 @@ const express = require('express');
 const authRouter = express.Router();
 const bcrypt = require('bcrypt');
 const User = require('../model/user');
-const { validateSignUpData } = require('../validation/validator');
+const { validateSignUpData } = require('../utils/validator');
 
 
 authRouter.post("/signup", async (req, res) => {
     try {
-        const { firstName, lastName, age, emailId, password, phoneNumber } = req?.body;
+        const { firstName, lastName, age, emailId, password, phoneNumber ,photoUrl} = req?.body;
         validateSignUpData(req);
         const passwordHash = await bcrypt.hash(password, 10);
         const newUser = new User({
-            firstName, lastName, age, emailId,
+            firstName, lastName, age, emailId,photoUrl,
             password: passwordHash, phoneNumber
 
         });
         const savedUser = await newUser.save();
-        const token = savedUser.getJWT();
-        console.log(token, "token")
+        const token = await savedUser.getJWT();
         res.cookie("token", token)
         res.status(200).json({ message: "Recieved Successfully" });
     }
@@ -43,6 +42,54 @@ authRouter.post("/signup", async (req, res) => {
         }
 
         // Generic fallback
+        res.status(500).json({
+            success: false,
+            message: "Something went wrong. Please try again later."
+        });
+    }
+})
+authRouter.post("/login", async (req, res) => {
+    try {
+        const { emailId, password } = req?.body;
+        if (!emailId) {
+            res.status(400).json({
+                success: false,
+                message: "Please Enter Email ID..!"
+            });
+        } if (!password) {
+            res.status(400).json({
+                success: false,
+                message: "Please Enter Password..!"
+            });
+        }
+
+        const userdetails = await User.findOne({emailId});
+        if (!userdetails) {
+            res.status(400).json({
+                success: false,
+                message: "Invalid Credentials"
+            });
+        }
+        const passwordCompare = await userdetails.validatePassword(password);
+        if (!passwordCompare) {
+            res.status(400).json({
+                success: false,
+                message: "Invalid Credentials"
+            });
+        }
+        else {
+            const token = await userdetails.getJWT();
+            console.log(token , "TOken")
+            res.cookie("token", token)
+            res.send(userdetails);
+           
+        }
+
+
+    }
+    catch (error) {
+        // Generic fallback
+        console.log(error)
         res.status(500).json({
             success: false,
             message: "Something went wrong. Please try again later."

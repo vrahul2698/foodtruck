@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
-const jwttoken = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
+const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema(
     {
@@ -22,6 +23,10 @@ const userSchema = new mongoose.Schema(
         password: {
             type: String,
             required: true,
+        },
+        photoUrl: {
+            type: String,
+            default:'https://avatars.githubusercontent.com/u/40992581?v=4'
         },
 
         gender: {
@@ -48,14 +53,25 @@ const userSchema = new mongoose.Schema(
             type: String,
             enum: ["USER", "VENDOR", "DELIVERY", "ADMIN"],
             default: "USER"
+        },
+
+        isDeleted: {
+            type: Boolean,
+            default: false
         }
+
     },
     { timestamps: true }
 );
+userSchema.methods.validatePassword = async function (passwordInputByUser) {
+    const user = this;
+    const passwordCompare = await bcrypt.compare(passwordInputByUser, user?.password);
+    return passwordCompare
+}
 
 userSchema.methods.getJWT = async function () {
     const user = this;
-    const token = await jwttoken.sign({ _id: user._id }, "Rahul2698")
+    const token = await jwt.sign({ _id: user._id }, "Rahul2698",{expiresIn: "1d" })
     return token
 
 }
