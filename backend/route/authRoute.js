@@ -12,20 +12,21 @@ const { validateSignUpData } = require('../utils/validator');
 
 authRouter.post("/signup", async (req, res) => {
     try {
-        const { firstName, lastName, age, emailId, password, phoneNumber ,photoUrl} = req?.body;
+        const { firstName, lastName, age, emailId, password, phoneNumber ,photoUrl, userStatus} = req?.body;
         validateSignUpData(req);
         const passwordHash = await bcrypt.hash(password, 10);
         const newUser = new User({
             firstName, lastName, age, emailId,photoUrl,
-            password: passwordHash, phoneNumber
+            password: passwordHash, phoneNumber,userStatus
 
         });
         const savedUser = await newUser.save();
         const token = await savedUser.getJWT();
         res.cookie("token", token)
-        res.status(200).json({ message: "Recieved Successfully" });
+        res.status(200).json({ message: "User Added Successfully" });
     }
     catch (error) {
+        //console.log(error , "error")
         if (error.code === 11000) {
             return res.status(409).json({
                 success: false,
@@ -44,7 +45,7 @@ authRouter.post("/signup", async (req, res) => {
         // Generic fallback
         res.status(500).json({
             success: false,
-            message: "Something went wrong. Please try again later."
+            message: error?.message
         });
     }
 })

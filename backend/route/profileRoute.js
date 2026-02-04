@@ -6,8 +6,7 @@ const { validateProfileEditData } = require('../utils/validator');
 
 profileRoute.get("/profile", AuthSignin, async (req, res) => {
     try {
-        const user = req?.user
-        console.log("User profile")
+        const user = req?.user;
         res.send(user)
 
     }
