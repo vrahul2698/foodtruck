@@ -40,15 +40,31 @@ const restaurantSchema = new mongoose.Schema({
         },
         phone: {
             type: String,
-            trim: true
+            trim: true,
         }
     },
     address: {
-        line1: String,
-        city: String,
-        state: String,
-        pincode: String,
+        line1: {
+            type: String,
+            required: true,
+            trim: true
+        },
+        city: {
+            type: String,
+            required: true,
+            index: true
+        },
+        state: {
+            type: String,
+            required: true
+        },
+        pincode: {
+            type: String,
+            required: true,
+             // Indian pincode
+        }
     },
+
     rating: {
         avg: { type: Number, default: 0 },
         count: { type: Number, default: 0 },

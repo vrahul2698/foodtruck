@@ -9,9 +9,7 @@ const validateSignUpData = (req) => {
     else if (!validate.isEmail(emailId)) {
         throw new Error("Please Enter Valid Email ID")
     }
-    else if (!validate.isStrongPassword(password)) {
-        throw new Error("Please Enter Strong Password")
-    }
+  
 
 }
 const validateProfileEditData = (req) => {

@@ -12,12 +12,12 @@ const { validateSignUpData } = require('../utils/validator');
 
 authRouter.post("/signup", async (req, res) => {
     try {
-        const { firstName, lastName, age, emailId, password, phoneNumber ,photoUrl, userStatus} = req?.body;
+        const { firstName, lastName, age, emailId, password, phoneNumber, photoUrl, userStatus } = req?.body;
         validateSignUpData(req);
         const passwordHash = await bcrypt.hash(password, 10);
         const newUser = new User({
-            firstName, lastName, age, emailId,photoUrl,
-            password: passwordHash, phoneNumber,userStatus
+            firstName, lastName, age, emailId, photoUrl,
+            password: passwordHash, phoneNumber, userStatus
 
         });
         const savedUser = await newUser.save();
@@ -52,38 +52,39 @@ authRouter.post("/signup", async (req, res) => {
 authRouter.post("/login", async (req, res) => {
     try {
         const { emailId, password } = req?.body;
+        console.log(emailId, password)
         if (!emailId) {
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 message: "Please Enter Email ID..!"
             });
         } if (!password) {
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 message: "Please Enter Password..!"
             });
         }
 
-        const userdetails = await User.findOne({emailId});
+        const userdetails = await User.findOne({ emailId });
         if (!userdetails) {
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 message: "Invalid Credentials"
             });
         }
         const passwordCompare = await userdetails.validatePassword(password);
         if (!passwordCompare) {
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 message: "Invalid Credentials"
             });
         }
         else {
             const token = await userdetails.getJWT();
-            console.log(token , "TOken")
+            console.log(token, "TOken")
             res.cookie("token", token)
-            res.send(userdetails);
-           
+            return res.send(userdetails);
+
         }
 
 
