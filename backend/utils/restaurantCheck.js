@@ -48,19 +48,29 @@ const RestaurantCheck = async (req, res, next) => {
 }
 
 const AllowedRoles = async (req, res, next) => {
-    try{
+    try {
         const allowedRoles = ["VENDOR", "ADMIN"];
-        if(!allowedRoles?.includes(req?.user?.userStatus)){
+        if (!allowedRoles?.includes(req?.user?.userStatus)) {
             throw new Error("Access denied")
         }
         next();
     }
-    catch(err){
-       res.status(400).send("Error 1: " + err.message)
+    catch (err) {
+        res.status(400).send("Error 1: " + err.message)
     }
-    
+
+}
+
+const ValidateRestaurantEditFields = (req) => {
+    const restaurant = req.body;
+    const AllowedEditFields = ['description', 'cuisines', 'restaurantImage', 'contact', 'address'];
+    const checkRestaurantDetails = Object.keys(restaurant).every(field => AllowedEditFields.includes(field));
+
+    if (!checkRestaurantDetails) {
+        throw new Error("Invalid Fields")
+    }
 }
 
 module.exports = {
-    RestaurantCheck,AllowedRoles
+    RestaurantCheck, AllowedRoles, ValidateRestaurantEditFields
 }

@@ -1,3 +1,14 @@
+# Status Codes
+
+| Operation        | Status         |
+| ---------------- | -------------- |
+| GET data         | `200`          |
+| POST create      | `201`          |
+| PUT/PATCH update | `200` or `204` |
+| DELETE           | `204`          |
+| Async process    | `202`          |
+
+
 # Auth Route
 
 POST /auth/login
