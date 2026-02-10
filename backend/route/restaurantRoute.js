@@ -1,6 +1,6 @@
 const express = require("express");
-const { AuthSignin } = require("../middleware/AuthSignin");
-const { RestaurantCheck, AllowedRoles, ValidateRestaurantEditFields } = require("../utils/restaurantCheck");
+const { AuthSignin ,AllowedRoles} = require("../middleware/AuthSignin");
+const { RestaurantCheck, ValidateRestaurantEditFields } = require("../utils/restaurantCheck");
 const Restaurant = require("../model/restaurants");
 const restaurantRouter = express.Router();
 
@@ -32,7 +32,6 @@ restaurantRouter.post("/restaurant", AuthSignin, RestaurantCheck, async (req, re
     }
 })
 
-
 restaurantRouter.get("/restaurants", AuthSignin, AllowedRoles, async (req, res) => {
     try {
         const user = req?.user;
@@ -63,6 +62,16 @@ restaurantRouter.patch("/restaurant/edit/:id", AuthSignin, AllowedRoles, async (
         ValidateRestaurantEditFields(req);
         const restaurantId = req.params.id;
         const restaurant = await Restaurant.findByIdAndUpdate(restaurantId, req.body)
+        return res.status(200).send({ success: true, message: "Restaurant updated successfully" })
+    }
+    catch (err) {
+        return res.status(400).send("Error : " + err.message)
+    }
+})
+restaurantRouter.patch("/restaurant/delete/:id", AuthSignin, AllowedRoles, async (req, res) => {
+    try {
+        const restaurantId = req.params.id;
+        const restaurant = await Restaurant.findByIdAndUpdate(restaurantId, { isDeleted: true })
         return res.status(200).send({ success: true, message: "Restaurant updated successfully" })
     }
     catch (err) {

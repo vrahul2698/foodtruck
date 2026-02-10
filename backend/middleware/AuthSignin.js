@@ -21,6 +21,20 @@ const AuthSignin = async (req, res, next) => {
         res.status(400).send("Error 1: " + err.message)
     }
 };
+
+const AllowedRoles = async (req, res, next) => {
+    try {
+        const allowedRoles = ["VENDOR", "ADMIN"];
+        if (!allowedRoles?.includes(req?.user?.userStatus)) {
+            throw new Error("Access denied")
+        }
+        next();
+    }
+    catch (err) {
+        res.status(400).send("Error 1: " + err.message)
+    }
+
+}
 module.exports = {
-    AuthSignin
+    AuthSignin,AllowedRoles
 }

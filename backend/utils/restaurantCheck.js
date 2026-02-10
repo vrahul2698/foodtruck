@@ -47,19 +47,7 @@ const RestaurantCheck = async (req, res, next) => {
     }
 }
 
-const AllowedRoles = async (req, res, next) => {
-    try {
-        const allowedRoles = ["VENDOR", "ADMIN"];
-        if (!allowedRoles?.includes(req?.user?.userStatus)) {
-            throw new Error("Access denied")
-        }
-        next();
-    }
-    catch (err) {
-        res.status(400).send("Error 1: " + err.message)
-    }
 
-}
 
 const ValidateRestaurantEditFields = (req) => {
     const restaurant = req.body;
@@ -72,5 +60,5 @@ const ValidateRestaurantEditFields = (req) => {
 }
 
 module.exports = {
-    RestaurantCheck, AllowedRoles, ValidateRestaurantEditFields
+    RestaurantCheck, ValidateRestaurantEditFields
 }
