@@ -1,11 +1,33 @@
 const validate = require('validator');
 
-const validateItemsCreate = (req, pagename) => {
-    const { category, itemname, description, foodType, basePrice, image, name, price } = req.body;
-    const numberRegex = /^[0-9]+$/;
+// MENU CATEGORY
+const validateMenuCategoryCreate = (req) => {
+    const { category } = req.body;
     if (!category && pagename === "CategoryMaster") {
         throw new Error("Please Enter Category Name")
-    } else if (!itemname) {
+    }
+
+}
+const AllowedMenuCategoryFields = (req) => {
+    const { category } = req.body;
+    const AllowedFields = ["category"];
+            const checkingItemsCategoryDetails = Object.keys(req?.body).every(field => AllowedFields?.includes(field));
+
+    if (!checkingItemsCategoryDetails) {
+         throw new Error("Invalid Fields")
+    }
+    else if (!category) {
+        throw new Error("Please Enter Category Name")
+    }
+
+}
+
+// MENU ITEMS
+const validateMenuItemsCreate = (req) => {
+    const { itemname, description, foodType, basePrice, image } = req.body;
+    console.log(req.body  ,"req.body")
+    const numberRegex = /^[0-9]+$/;
+    if (!itemname) {
         throw new Error("Please Enter Item Name")
     } else if (!description) {
         throw new Error("Please Enter Description")
@@ -15,13 +37,21 @@ const validateItemsCreate = (req, pagename) => {
     else if (!["VEG", "NON_VEG", "EGG"].includes(foodType)) {
         throw new Error("Please Select Valid Food Type")
     }
+    else if (!basePrice) {
+        throw new Error("Please Enter Base Price")
+    }
     else if (!numberRegex.test(basePrice)) {
         throw new Error("Please Enter Valid Base Price");
     }
     else if (!image) {
         throw new Error("Please Upload Items Image");
     }
-    else if (!name) {
+
+}
+const validateMenuVariantsCreate = (req) => {
+    const { name, price } = req.body;
+    const numberRegex = /^[0-9]+$/;
+    if (!name) {
         throw new Error("Please Enter Variant Name");
     }
     else if (!numberRegex.test(price)) {
@@ -30,4 +60,4 @@ const validateItemsCreate = (req, pagename) => {
 
 }
 
-module.exports = { validateItemsCreate }
+module.exports = { validateMenuCategoryCreate,AllowedMenuCategoryFields, validateMenuItemsCreate, validateMenuVariantsCreate }

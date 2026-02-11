@@ -24,6 +24,7 @@ const AuthSignin = async (req, res, next) => {
 
 const AllowedRoles = async (req, res, next) => {
     try {
+        // console.log(req?.user , 'req?.user')
         const allowedRoles = ["VENDOR", "ADMIN"];
         if (!allowedRoles?.includes(req?.user?.userStatus)) {
             throw new Error("Access denied")
