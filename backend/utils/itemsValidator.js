@@ -11,10 +11,10 @@ const validateMenuCategoryCreate = (req) => {
 const AllowedMenuCategoryFields = (req) => {
     const { category } = req.body;
     const AllowedFields = ["category"];
-            const checkingItemsCategoryDetails = Object.keys(req?.body).every(field => AllowedFields?.includes(field));
+    const checkingItemsCategoryDetails = Object.keys(req?.body).every(field => AllowedFields?.includes(field));
 
     if (!checkingItemsCategoryDetails) {
-         throw new Error("Invalid Fields")
+        throw new Error("Invalid Fields")
     }
     else if (!category) {
         throw new Error("Please Enter Category Name")
@@ -22,10 +22,11 @@ const AllowedMenuCategoryFields = (req) => {
 
 }
 
+
 // MENU ITEMS
 const validateMenuItemsCreate = (req) => {
     const { itemname, description, foodType, basePrice, image } = req.body;
-    console.log(req.body  ,"req.body")
+    console.log(req.body, "req.body")
     const numberRegex = /^[0-9]+$/;
     if (!itemname) {
         throw new Error("Please Enter Item Name")
@@ -48,6 +49,54 @@ const validateMenuItemsCreate = (req) => {
     }
 
 }
+
+const AllowedMenuItemsFields = (req) => {
+  const { itemname, description, foodType, basePrice, image } = req.body;
+ const numberRegex = /^[0-9]+$/;
+  const AllowedFields = [
+    "itemname",
+    "description",
+    "foodType",
+    "basePrice",
+    "image",
+  ];
+
+  // Allow only listed fields
+  const isValidUpdate = Object.keys(req.body).every(field =>
+    AllowedFields.includes(field)
+  );
+
+  if (!isValidUpdate) {
+    throw new Error("Invalid Fields");
+  }
+
+  // Validate ONLY if field exists
+
+  if (itemname !== undefined && !itemname.trim()) {
+    throw new Error("Item Name cannot be empty");
+  }
+
+  if (description !== undefined && !description.trim()) {
+    throw new Error("Description cannot be empty");
+  }
+
+  if (foodType !== undefined && !["VEG", "NON_VEG", "EGG"].includes(foodType)) {
+    throw new Error("Please Select Valid Food Type");
+  }
+
+  if (basePrice !== undefined) {
+    if (!numberRegex.test(basePrice)) {
+      throw new Error("Please Enter Valid Base Price");
+    }
+  }
+
+  if (image !== undefined && !image) {
+    throw new Error("Please Upload Items Image");
+  }
+};
+
+
+
 const validateMenuVariantsCreate = (req) => {
     const { name, price } = req.body;
     const numberRegex = /^[0-9]+$/;
@@ -60,4 +109,4 @@ const validateMenuVariantsCreate = (req) => {
 
 }
 
-module.exports = { validateMenuCategoryCreate,AllowedMenuCategoryFields, validateMenuItemsCreate, validateMenuVariantsCreate }
+module.exports = { validateMenuCategoryCreate, AllowedMenuCategoryFields, AllowedMenuItemsFields ,validateMenuItemsCreate, validateMenuVariantsCreate }
