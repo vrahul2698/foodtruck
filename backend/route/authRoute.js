@@ -51,9 +51,9 @@ authRouter.post("/signup", async (req, res) => {
 })
 authRouter.post("/login", async (req, res) => {
     try {
-        const { emailId, password } = req?.body;
-        console.log(emailId, password)
-        if (!emailId) {
+        const { phoneNumber, password } = req?.body;
+        console.log(phoneNumber, password)
+        if (!phoneNumber) {
             return res.status(400).json({
                 success: false,
                 message: "Please Enter Email ID..!"
@@ -65,7 +65,7 @@ authRouter.post("/login", async (req, res) => {
             });
         }
 
-        const userdetails = await User.findOne({ emailId });
+        const userdetails = await User.findOne({ phoneNumber });
         if (!userdetails) {
             return res.status(400).json({
                 success: false,

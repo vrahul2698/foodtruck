@@ -1,12 +1,24 @@
 
 import './App.css'
+import { BrowserRouter, Route, Routes } from "react-router-dom"
+import Body from './components/Body'
+import Feed from './components/feed'
+import Login from './components/Login'
+
 
 function App() {
 
   return (
-<div>
-  <h1>THis is an Food Truck APP</h1>
-</div>
+    <>
+      <BrowserRouter basename='/'>
+        <Routes>
+          <Route path='/' element={<Body />}>
+            <Route path='/' element={<Feed />} />
+            <Route path='/login' element={<Login />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </>
   )
 }
 
