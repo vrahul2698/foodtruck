@@ -11,7 +11,9 @@ const { validateSignUpData } = require('../utils/validator');
 
 
 authRouter.post("/signup", async (req, res) => {
+    console.log(req?.body , "Hitted")
     try {
+        
         const { firstName, lastName, age, emailId, password, phoneNumber, photoUrl, userStatus } = req?.body;
         validateSignUpData(req);
         const passwordHash = await bcrypt.hash(password, 10);
@@ -23,12 +25,13 @@ authRouter.post("/signup", async (req, res) => {
         const savedUser = await newUser.save();
         const token = await savedUser.getJWT();
         res.cookie("token", token)
-        res.status(200).json({ message: "User Added Successfully" });
+        res.status(200).json({data : savedUser,  message: "User Added Successfully" });
     }
     catch (error) {
-        //console.log(error , "error")
+        console.log(error?.message , "error")
+             
         if (error.code === 11000) {
-            return res.status(409).json({
+             res.status(409).json({
                 success: false,
                 message: "Email already registered. Please Use Different MailId."
             });
@@ -36,17 +39,14 @@ authRouter.post("/signup", async (req, res) => {
 
         // Validation errors
         if (error.name === "ValidationError") {
-            return res.status(400).json({
+             res.status(400).json({
                 success: false,
                 message: error.message
             });
         }
 
         // Generic fallback
-        res.status(500).json({
-            success: false,
-            message: error?.message
-        });
+   res.status(400).send("Error :" +error?.message);
     }
 })
 authRouter.post("/login", async (req, res) => {
@@ -97,6 +97,12 @@ authRouter.post("/login", async (req, res) => {
             message: "Something went wrong. Please try again later."
         });
     }
+})
+
+
+authRouter.post("/logout", async (req, res) => {
+    res.cookie("token", null, { expires: new Date(Date.now()) });
+    res.send("Logged Out Successful")
 })
 
 module.exports = authRouter;

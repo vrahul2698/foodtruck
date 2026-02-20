@@ -11,7 +11,8 @@ profileRoute.get("/profile", AuthSignin, async (req, res) => {
 
     }
     catch (err) {
-        res.status(400).send("Error :" + err.message)
+        console.log(err.message, "err")
+        res.status(401).send("Error :" + err.message)
     }
 
 })

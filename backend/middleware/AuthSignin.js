@@ -2,10 +2,12 @@ const jwttoken = require("jsonwebtoken");
 const User = require("../model/user")
 
 const AuthSignin = async (req, res, next) => {
+    
     try {
         const { token } = req?.cookies;
+        console.log(token , "dnjs")
         if (!token) {
-            return res.status(401).send("Please Login.!")
+            throw new Error("Please Login.!")
         }
 
         const checkJwt = await jwttoken.verify(token, "Rahul2698");
@@ -18,7 +20,8 @@ const AuthSignin = async (req, res, next) => {
 
     }
     catch (err) {
-        res.status(400).send("Error 1: " + err.message)
+        console.log(err.message, "err")
+        res.status(401).send("Error 1: " + err.message)
     }
 };
 
