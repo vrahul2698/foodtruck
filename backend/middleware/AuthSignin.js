@@ -5,7 +5,6 @@ const AuthSignin = async (req, res, next) => {
     
     try {
         const { token } = req?.cookies;
-        console.log(token , "dnjs")
         if (!token) {
             throw new Error("Please Login.!")
         }

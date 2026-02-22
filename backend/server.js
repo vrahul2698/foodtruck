@@ -7,9 +7,11 @@ const profileRoute = require("./route/profileRoute");
 const itemsCategoryRoute = require("./route/itemsCategoryRoute");
 const itemsMasterRoute = require("./route/itemsMasterRoute");
 const app = express();
+
 app.use(cors({
-    origin: "http://localhost:5173",
-    credentials: true
+  origin: "http://localhost:5173", // or your frontend port
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
 }));
 app.use(cookieParser());
 app.use(express.json());

@@ -44,14 +44,12 @@ const Navbar = () => {
                 tabIndex="-1"
                 className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
                 <li>
-                 <Link to={"/profile"}> <a className="justify-between">
+                 <Link to={"/profile"}>
                     Profile
-                    {/* <span className="badge">New</span> */}
-                  </a>
                   </Link>
                 </li>
-                <li><a>Request Access</a></li>
-                <li><a className='cursor-pointer' onClick={handleLogout}>Logout</a></li>
+                <li>Request Access</li>
+                <li className='cursor-pointer' onClick={handleLogout}>Logout</li>
               </ul>
             </div>
           </div>

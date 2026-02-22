@@ -14,7 +14,7 @@ const validateSignUpData = (req) => {
 }
 const validateProfileEditData = (req) => {
 
-        const ALLOWED_EDIT_FIELDS = ['firstName', 'lastName', 'password', 'gender', 'photoUrl'];
+        const ALLOWED_EDIT_FIELDS = ['firstName', 'lastName', 'age', 'gender', 'photoUrl'];
         const checkingUserDetails = Object.keys(req?.body).every(field => ALLOWED_EDIT_FIELDS?.includes(field));
         if (!checkingUserDetails) {
             throw new Error("Invalid Fields")
