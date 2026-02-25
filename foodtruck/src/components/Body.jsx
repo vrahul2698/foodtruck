@@ -16,6 +16,7 @@ const Body = () => {
   const fetchUser = async()=>{
     try{
       const user = await axios.get("http://localhost:5000/profile",{withCredentials:true});
+      // console.log(user , "Body")
       dispatch(addUser(user?.data));
 
     }
@@ -31,15 +32,17 @@ const Body = () => {
       fetchUser();
     }
   },[])
-  return (
-    <div>
-        <Navbar/>
-        {/* Used to Render child routes */}
-        {/* where nested routes render their components. */}
-        <Outlet/>
-        <Footer/>
+ return (
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+
+      <main className="flex-1 pb-10">
+        <Outlet />
+      </main>
+
+      <Footer />
     </div>
-  )
+  );
 }
 
 export default Body

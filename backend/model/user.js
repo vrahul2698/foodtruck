@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema(
         },
         photoUrl: {
             type: String,
-            default:'https://avatars.githubusercontent.com/u/40992581?v=4'
+            default: 'https://avatars.githubusercontent.com/u/40992581?v=4'
         },
 
         gender: {
@@ -54,7 +54,15 @@ const userSchema = new mongoose.Schema(
             enum: ["USER", "VENDOR", "DELIVERY", "ADMIN"],
             default: "USER"
         },
-
+        isApproved: {
+            type: String,
+            enum: ["PENDING", "ACCEPTED", "REJECTED", "PROCESSED"],
+            default: 'PENDING'
+        },
+        requestedRole: {
+            type: String,
+            enum: ["VENDOR", "DELIVERY"]
+        },
         isDeleted: {
             type: Boolean,
             default: false
@@ -71,7 +79,7 @@ userSchema.methods.validatePassword = async function (passwordInputByUser) {
 
 userSchema.methods.getJWT = async function () {
     const user = this;
-    const token = await jwt.sign({ _id: user._id }, "Rahul2698",{expiresIn: "1d" })
+    const token = await jwt.sign({ _id: user._id }, "Rahul2698", { expiresIn: "1d" })
     return token;
 
 }

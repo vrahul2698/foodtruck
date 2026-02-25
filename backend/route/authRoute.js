@@ -8,12 +8,13 @@ const authRouter = express.Router();
 const bcrypt = require('bcrypt');
 const User = require('../model/user');
 const { validateSignUpData } = require('../utils/validator');
+const { AuthSignin } = require('../middleware/AuthSignin');
 
 
 authRouter.post("/signup", async (req, res) => {
-    console.log(req?.body , "Hitted")
+    // console.log(req?.body, "Hitted")
     try {
-        
+
         const { firstName, lastName, age, emailId, password, phoneNumber, photoUrl, userStatus } = req?.body;
         validateSignUpData(req);
         const passwordHash = await bcrypt.hash(password, 10);
@@ -25,13 +26,13 @@ authRouter.post("/signup", async (req, res) => {
         const savedUser = await newUser.save();
         const token = await savedUser.getJWT();
         res.cookie("token", token)
-        res.status(200).json({data : savedUser,  message: "User Added Successfully" });
+        res.status(200).json({ data: savedUser, message: "User Added Successfully" });
     }
     catch (error) {
-        console.log(error?.message , "error")
-             
+        console.log(error?.message, "error")
+
         if (error.code === 11000) {
-             res.status(409).json({
+            res.status(409).json({
                 success: false,
                 message: "Email already registered. Please Use Different MailId."
             });
@@ -39,20 +40,20 @@ authRouter.post("/signup", async (req, res) => {
 
         // Validation errors
         if (error.name === "ValidationError") {
-             res.status(400).json({
+            res.status(400).json({
                 success: false,
                 message: error.message
             });
         }
 
         // Generic fallback
-   res.status(400).send("Error :" +error?.message);
+        res.status(400).send("Error :" + error?.message);
     }
 })
 authRouter.post("/login", async (req, res) => {
     try {
         const { phoneNumber, password } = req?.body;
-        console.log(phoneNumber, password)
+        // console.log(phoneNumber, password)
         if (!phoneNumber) {
             return res.status(400).json({
                 success: false,
@@ -81,8 +82,14 @@ authRouter.post("/login", async (req, res) => {
         }
         else {
             const token = await userdetails.getJWT();
-            console.log(token, "TOken")
-            res.cookie("token", token)
+            // console.log(token, "TOken")
+            const cookieOptions = {
+                httpOnly: true,
+                sameSite: "lax",
+                path: "/",
+            };
+
+            res.cookie("token", token, cookieOptions);
             return res.send(userdetails);
 
         }
@@ -101,7 +108,12 @@ authRouter.post("/login", async (req, res) => {
 
 
 authRouter.post("/logout", async (req, res) => {
-    res.cookie("token", null, { expires: new Date(Date.now()) });
+    const cookieOptions = {
+  httpOnly: true,
+  sameSite: "lax",
+  path: "/",
+};
+res.clearCookie("token", cookieOptions);
     res.send("Logged Out Successful")
 })
 

@@ -22,7 +22,7 @@ profileRoute.patch("/profile/edit", AuthSignin, async (req, res) => {
         validateProfileEditData(req);
         const userId = req.user?._id;
         const user = await User.findByIdAndUpdate(userId, req?.body, { new: true });
-        console.log(user, "user Profile")
+        // console.log(user, "user Profile")
         res.status(200).send({ data: user, message: "User Update Successfully" })
 
     }

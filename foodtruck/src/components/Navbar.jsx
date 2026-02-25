@@ -10,8 +10,8 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const handleLogout = async () => {
     try {
-      const logout = await axios.post("http://localhost:5000/logout", { withCredentials: true });
-      console.log(logout, "logout")
+      const logout = await axios.post("http://localhost:5000/logout", {},{ withCredentials: true });
+      // console.log(logout, "logout")
       if (logout?.status === 200) {
         dispatch(removeUser());
         navigate("/login");
@@ -43,19 +43,26 @@ const Navbar = () => {
               <ul
                 tabIndex="-1"
                 className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
+                <li> <Link to={"/profile"}> Profile</Link></li>
+                <li><Link to={"/requestaccess"}>Request Access</Link></li>
+                <li><Link to={"/restaurantmaster"}>Restaurant</Link></li>
                 <li>
-                 <Link to={"/profile"}>
-                    Profile
-                  </Link>
+                  <details>
+                    <summary>Items</summary>
+                    <ul className="bg-base-100 rounded-t-none p-2">
+                      <li><Link to={"/menucategory"}>Menu Category</Link></li>
+                      <li><Link to={"/menuitems"}>Menu Items</Link></li>
+                      <li><Link to={"/menuvariants"}>Menu Variants</Link></li>
+                    </ul>
+                  </details>
                 </li>
-                <li>Request Access</li>
-                <li className='cursor-pointer' onClick={handleLogout}>Logout</li>
+                <li><a className='cursor-pointer' onClick={handleLogout}>Logout</a></li>
               </ul>
             </div>
           </div>
-          }
-        </div>
-      
+        }
+      </div>
+
     </>
   )
 }
