@@ -26,7 +26,7 @@ const restaurantSchema = new mongoose.Schema({
         default: false
     },
     cuisines: {
-        type: [String],
+        type: String,
         index: true
     },
     restaurantImage: {

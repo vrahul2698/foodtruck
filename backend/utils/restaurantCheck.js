@@ -1,12 +1,12 @@
 const validate = require("validator")
 
-const RestaurantCheck = async (req, res, next) => {
-    try {
-        // console.log(req?.user, req?.body, 'Request');
+const RestaurantCheck = (req, role) => {
+        console.log(req, 'Request');
 
         const AllowedRoles = ["VENDOR", "ADMIN"];
-        const userStatus = req?.user?.userStatus;
-        const { name, description, ownerId, cuisines, restaurantImage, contact, address, rating } = req?.body;
+        const userStatus = role;
+        const { name, description, cuisines, restaurantImage, contact, address, resOwnerId, isOpened } = req;
+        console.log("ADDRESS:", address);
         const phoneRegex = /^[0-9]{10}$/;
         const pincodeRegex = /^[0-9]{6}$/;
         if (!AllowedRoles?.includes(userStatus)) {
@@ -39,12 +39,6 @@ const RestaurantCheck = async (req, res, next) => {
         else if (address && !pincodeRegex.test(address?.pincode)) {
             throw new Error("Please Enter Valid pincode")
         }
-
-        next();
-    }
-    catch (err) {
-        res.status(400).send("Error 1: " + err.message)
-    }
 }
 
 
