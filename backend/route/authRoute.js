@@ -9,7 +9,7 @@ const bcrypt = require('bcrypt');
 const User = require('../model/user');
 const { validateSignUpData } = require('../utils/validator');
 const { AuthSignin } = require('../middleware/AuthSignin');
-
+const jwt = require("jsonwebtoken");
 
 authRouter.post("/signup", async (req, res) => {
     // console.log(req?.body, "Hitted")
@@ -90,10 +90,32 @@ authRouter.post("/login", async (req, res) => {
             };
 
             res.cookie("token", token, cookieOptions);
-            return res.send(userdetails);
+            return res.send({user : userdetails , token});
 
         }
 
+
+    }
+    catch (error) {
+        // Generic fallback
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            message: "Something went wrong. Please try again later."
+        });
+    }
+})
+authRouter.post("/accesstoken", async (req, res) => {
+    try {
+        const { token } = req?.body;
+
+      const checkJwt = await jwt.verify(token, "Rahul2698");
+      console.log(checkJwt , "checkJwt")
+          const userCheck = await User.findById(checkJwt._id);
+          if (!userCheck) {
+              throw new Error("User Doesn't Exist")
+          }
+          return res.status(200).send({user : userCheck})
 
     }
     catch (error) {

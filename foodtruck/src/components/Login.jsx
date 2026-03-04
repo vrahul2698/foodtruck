@@ -26,7 +26,16 @@ const Login = () => {
       const user = await axios.post("http://localhost:5000/signup", query, { withCredentials: true });
       if (user?.status === 200) {
         dispatch(addUser(user?.data?.data));
-        navigate("/")
+        const role = user?.data?.data?.userStatus;
+
+        const roleRedirectMap = {
+          USER: "/user",
+          VENDOR: "/vendor",
+          ADMIN: "/admin",
+          DELIVERY: "/delivery",
+        };
+        console.log(roleRedirectMap[role], "roleRedirectMap[role]")
+        navigate(roleRedirectMap[role] || "/login");
         console.log(user?.data, "query")
       }
 
@@ -43,9 +52,18 @@ const Login = () => {
     try {
       const query = { password, phoneNumber };
       const user = await axios.post("http://localhost:5000/login", query, { withCredentials: true });
-      dispatch(addUser(user?.data));
-      navigate("/")
-      console.log(user?.data, "query")
+      dispatch(addUser(user?.data?.user));
+localStorage.setItem("token" , user?.data?.token)
+      const role = user?.data?.user?.userStatus;
+
+      const roleRedirectMap = {
+        USER: "/user",
+        VENDOR: "/vendor",
+        ADMIN: "/admin",
+        DELIVERY: "/delivery",
+      };
+      console.log(roleRedirectMap[role], "roleRedirectMap[role]")
+      navigate(roleRedirectMap[role] || "/login");
 
     }
     catch (err) {
@@ -59,7 +77,7 @@ const Login = () => {
     <div className='flex justify-center my-10'>
       <div className='card card-border bg-base-300 w-96'>
         <div className='card-body'>
-          <h2 className="card-title justify-center">{"Login"}</h2>
+          <h2 className="card-title justify-center">{!isLoginForm ? "Sign Up":"Login"}</h2>
           <div>
             {!isLoginForm &&
               <>
@@ -74,7 +92,7 @@ const Login = () => {
                 </fieldset>
                 <fieldset className="fieldset my-2">
                   <legend className="fieldset-legend">Gender</legend>
-                  <select defaultValue="Gender" className="select" key={gender} value={gender} onChange={(e) => setGender(e.target.value)}>
+                  <select className="select" key={gender} value={gender} onChange={(e) => setGender(e.target.value)}>
                     <option disabled={true}>Gender</option>
                     <option>Male</option>
                     <option>Female</option>
