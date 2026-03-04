@@ -45,7 +45,7 @@ const RequestAccess = () => {
                 <div className="flex justify-center mx-10">
                     <div className="card card-border bg-base-300 w-96">
                         <div className="card-body">
-                            <h2 className="card-title justify-center">Request for an Vendor Profile</h2>
+                            <h2 className="card-title justify-center">Request for an Vendor/Delivery Profile</h2>
                             <div>
                                 <figure>
                                     <img

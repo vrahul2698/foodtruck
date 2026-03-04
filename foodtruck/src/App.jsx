@@ -23,17 +23,10 @@ function App() {
   return (
     <>
       <Provider store={appStore}>
-        <BrowserRouter basename='/'>
+        <BrowserRouter>
           <Routes>
-            {/* <Route path='/' element={<Body />}> */}
-            {/* <Route path='/' element={<Feed />} /> */}
-            {/* <Route path='/profile' element={<Profile />} /> */}
-
+            <Route path='/' element={<Login />} />
             <Route path='/login' element={<Login />} />
-            <Route path='/' element={<Navigate to={<Login />} />} />
-
-            {/* <Route element={<MainLayout/>}> */}
-       
             {/* VENDOR Protected Roles */}
             <Route path='/vendor' element={
               <RoleProtectedRoutes allowedRoles={["VENDOR"]}
@@ -45,25 +38,28 @@ function App() {
               <Route path='menucategory' element={<MenuCategory />} />
               <Route path='menuitems' element={<MenuItems />} />
               <Route path='menuvariants' element={<MenuVariants />} />
-                   <Route path='profile' element={
-              <Profile />
-            } />
+              <Route path='profile' element={
+                <Profile />
+              } />
             </Route>
+            {/* USER Protected Roles */}
             <Route path='/user' element={
               <RoleProtectedRoutes allowedRoles={["USER"]}>
                 <UserLayout />
               </RoleProtectedRoutes>
             }>
-                  <Route path='profile' element={
-              <Profile />
-            } />
+              <Route path='profile' element={
+                <Profile />
+              } />
             </Route>
+            {/* DELIVERY Protected Roles */}
             <Route path='/delivery' element={
               <RoleProtectedRoutes allowedRoles={["DELIVERY"]}>
                 <DeliveryLayout />
               </RoleProtectedRoutes>
             }>
             </Route>
+            {/* ADMIN Protected Roles */}
             <Route path='/admin' element={
               <RoleProtectedRoutes allowedRoles={["ADMIN"]}>
                 <AdminLayout />
