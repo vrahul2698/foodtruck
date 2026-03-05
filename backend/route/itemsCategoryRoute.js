@@ -10,7 +10,7 @@ itemsCategoryRoute.post("/itemscategory", AuthSignin, AllowedRoles, async (req, 
 
     try {
         // validate
-        console.log(req.body,"req.body")
+        console.log(req.body, "req.body")
         validateMenuCategoryCreate(req);
         const { category, restaurantId } = req.body;
         const restaurant = await Restaurant.findOne({
@@ -27,7 +27,7 @@ itemsCategoryRoute.post("/itemscategory", AuthSignin, AllowedRoles, async (req, 
         }
         const exists = await MenuCategory.findOne({
             restaurantId,
-            ownerId:req.user._id,
+            ownerId: req.user._id,
             name: category,
             isDeleted: false
         });
@@ -47,6 +47,26 @@ itemsCategoryRoute.post("/itemscategory", AuthSignin, AllowedRoles, async (req, 
         res.status(400).send(err.message)
     }
 })
+
+
+itemsCategoryRoute.get("/menucategory", AuthSignin, AllowedRoles, async (req, res) => {
+
+    try {
+        let menucategories = [];
+        // console.log(req?.query?.restaurantValue, "Request");
+        const restaurantId = req?.query?.restaurantValue;
+        if (restaurantId) {
+            menucategories = await MenuCategory.find({ restaurantId, isActive: true }).select("_id name");
+        }
+
+        return res.status(200).send({ success: true, count: menucategories?.length, menucategories })
+    }
+    catch (err) {
+        // console.log(err , "err")
+        res.status(400).send(err.message)
+    }
+})
+
 
 itemsCategoryRoute.patch("/itemscategory/edit/:id", AuthSignin, AllowedRoles, async (req, res) => {
     try {
