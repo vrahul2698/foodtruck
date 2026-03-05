@@ -3,7 +3,7 @@ const validate = require('validator');
 // MENU CATEGORY
 const validateMenuCategoryCreate = (req) => {
     const { category } = req.body;
-    if (!category && pagename === "CategoryMaster") {
+    if (!category) {
         throw new Error("Please Enter Category Name")
     }
 

@@ -16,6 +16,7 @@ const RestaurantMaster = () => {
   const [state, setState] = useState("");
   const [error, setError] = useState("");
 
+
   const fetchAddress = async (pin) => {
     if (pin.length === 6) {
       const res = await fetch(`https://api.postalpincode.in/pincode/${pin}`);

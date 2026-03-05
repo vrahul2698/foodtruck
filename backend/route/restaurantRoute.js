@@ -58,6 +58,30 @@ restaurantRouter.get("/restaurants", AuthSignin, AllowedRoles, async (req, res) 
         res.status(400).send("Error : " + err.message)
     }
 })
+restaurantRouter.get("/filteredrestaurants", AuthSignin, AllowedRoles, async (req, res) => {
+    try {
+        const user = req?.user;
+        let filter = {
+            // isApproved: true,
+            isDeleted: false
+        }
+        if (user?.userStatus !== "ADMIN") {
+            filter.ownerId = user?._id;
+        }
+        const restaurants = await Restaurant.find(filter)
+            .select("name")
+            .populate("ownerId", "firstName lastName")
+            .lean();
+        return res.status(200).json({
+            success: true,
+            count: restaurants.length,
+            restaurants
+        });
+    }
+    catch (err) {
+        res.status(400).send("Error : " + err.message)
+    }
+})
 restaurantRouter.patch("/restaurant/approved/:id", AuthSignin, async (req, res) => {
     try {
         const ALLOWED_ROLE = "ADMIN";

@@ -10,6 +10,7 @@ itemsCategoryRoute.post("/itemscategory", AuthSignin, AllowedRoles, async (req, 
 
     try {
         // validate
+        console.log(req.body,"req.body")
         validateMenuCategoryCreate(req);
         const { category, restaurantId } = req.body;
         const restaurant = await Restaurant.findOne({
@@ -42,7 +43,8 @@ itemsCategoryRoute.post("/itemscategory", AuthSignin, AllowedRoles, async (req, 
         return res.status(201).json({ success: true, message: "Food Items Category Created Successfully" })
     }
     catch (err) {
-        return res.status(500).json({ success: false, message: "Error : " + err.message })
+        // console.log(err , "err")
+        res.status(400).send(err.message)
     }
 })
 
