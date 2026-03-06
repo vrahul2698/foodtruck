@@ -9,12 +9,12 @@ const RoleProtectedRoutes = ({ allowedRoles, children }) => {
   const user = useSelector((store) => store.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const[loading , setLoading] = useState(true)
+  const [loading, setLoading] = useState(true)
   console.log(allowedRoles, "allowedRoles")
 
   useEffect(() => {
     const fetchUser = async () => {
-      
+
       try {
         const user = await axios.get("http://localhost:5000/profile", { withCredentials: true });
         console.log(user, "user")

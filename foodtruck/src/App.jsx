@@ -16,6 +16,10 @@ import VendorLayout from './components/Vendor/VendorLayout';
 import UserLayout from './components/User/UserLayout';
 import DeliveryLayout from './components/Delivery/DeliveryLayout';
 import AdminLayout from './components/Admin/AdminLayout';
+import VendorDashboard from './components/Vendor/VendorDashboard'
+import UserDashboard from './components/User/UserDashboard'
+import AdminDashboard from './components/Admin/AdminDashboard'
+import DeliveryDashboard from './components/Delivery/DeliveryDashboard'
 
 
 function App() {
@@ -34,6 +38,7 @@ function App() {
                 <VendorLayout />
               </RoleProtectedRoutes>
             }>
+              <Route path='dashboard' element={<VendorDashboard />} />
               <Route path='restaurantmaster' element={<RestaurantMaster />} />
               <Route path='menucategory' element={<MenuCategory />} />
               <Route path='menuitems' element={<MenuItems />} />
@@ -52,12 +57,14 @@ function App() {
                 <Profile />
               } />
             </Route>
+            <Route path='dashboard' element={<UserDashboard />} />
             {/* DELIVERY Protected Roles */}
             <Route path='/delivery' element={
               <RoleProtectedRoutes allowedRoles={["DELIVERY"]}>
                 <DeliveryLayout />
               </RoleProtectedRoutes>
             }>
+              <Route path='dashboard' element={<DeliveryDashboard />} />
             </Route>
             {/* ADMIN Protected Roles */}
             <Route path='/admin' element={
@@ -66,6 +73,7 @@ function App() {
               </RoleProtectedRoutes>
             }>
               <Route path='requestaccess' element={<RequestAccess />} />
+              <Route path='dashboard' element={<AdminDashboard />} />
             </Route>
             {/* </Route> */}
 

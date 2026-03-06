@@ -31,9 +31,12 @@ const MenuCategory = () => {
         category: menuCategoryName
       }
       const menuCat = await axios.post(BASE_URL + "itemscategory", query, { withCredentials: true });
-      setError("");
-      setShowToast(true);
-      setTimeout(() => { setShowToast(false) }, 2000)
+      if (menuCat?.data?.success) {
+        setError("");
+        setShowToast(true);
+        setTimeout(() => { setShowToast(false) }, 2000)
+      }
+
 
 
     }

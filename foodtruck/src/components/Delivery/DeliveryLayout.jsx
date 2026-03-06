@@ -8,7 +8,7 @@ const DeliveryLayout = () => {
       <div className="min-h-screen flex flex-col">
         <div className="navbar bg-base-100 shadow-sm">
           <div className="flex-1">
-            <Link to={"/"} className="btn btn-ghost text-2xl">🍓Food Truck</Link>
+            <Link to={"dashboard"} className="btn btn-ghost text-2xl">🍓Food Truck</Link>
           </div>
         </div>
         {/* Page Content */}

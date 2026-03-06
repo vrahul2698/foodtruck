@@ -30,7 +30,7 @@ const UserLayout = () => {
 
     {/* Left side */}
     <div className="flex-1">
-      <Link to="/" className="btn btn-ghost text-2xl">
+      <Link to="dashboard" className="btn btn-ghost text-2xl">
         🍓Food Truck
       </Link>
     </div>

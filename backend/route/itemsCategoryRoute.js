@@ -20,10 +20,7 @@ itemsCategoryRoute.post("/itemscategory", AuthSignin, AllowedRoles, async (req, 
         });
 
         if (!restaurant) {
-            return res.status(403).json({
-                success: false,
-                message: "You are not allowed to add category to this restaurant"
-            });
+            throw new Error("You are not allowed to add category to this restaurant");
         }
         const exists = await MenuCategory.findOne({
             restaurantId,
@@ -32,7 +29,7 @@ itemsCategoryRoute.post("/itemscategory", AuthSignin, AllowedRoles, async (req, 
             isDeleted: false
         });
         if (exists) {
-            return res.status(409).json({ success: false, message: "Menu Catgory Already Exists" })
+            throw new Error("Menu Catgory Already Exists");
         }
         const menuCatgeory = new MenuCategory({
             restaurantId,

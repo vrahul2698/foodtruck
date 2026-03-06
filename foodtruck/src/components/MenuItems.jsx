@@ -64,13 +64,20 @@ const MenuItems = () => {
         restaurantId: restaurantValue?.value,
         categoryId: categoryValue?.value,
         name: menuItemName,
-        foodType: itemType,
+        foodType: itemType?.value,
         description,
         basePrice,
         discountPercent
       };
+      const menuItems = await axios.post(BASE_URL + "menuitems/create", { ...query }, { withCredentials: true });
+      setError("")
+      if (menuItems?.data?.success) {
+        setShowToast(true);
+        setTimeout(() => { setShowToast(false) }, 2000)
+      }
       console.log(query, "query");
     } catch (err) {
+      setError(err?.response?.data ?? "Something Went wrong")
       console.log("Error :" + err?.response?.data);
     }
   };
@@ -91,6 +98,7 @@ const MenuItems = () => {
                 value={restaurantValue}
                 onChange={(option) => {
                   setRestaurantValue(option);
+                  setCategoryValue("")
                 }}
                 theme={(theme) => ({
                   ...theme,
@@ -169,7 +177,7 @@ const MenuItems = () => {
               />
             </fieldset>
           </div>
-               <div className="grid md:grid-cols-2 gap-4 mt-4">
+          <div className="grid md:grid-cols-2 gap-4 mt-4">
             <fieldset className="fieldset">
               <legend className="fieldset-legend">Base Price</legend>
               <input
@@ -179,7 +187,7 @@ const MenuItems = () => {
                 onChange={(e) => setBasePrice(e?.target?.value)}
               />
             </fieldset>
-             <fieldset className="fieldset">
+            <fieldset className="fieldset">
               <legend className="fieldset-legend">Discount Percent</legend>
               <input
                 type="text"
@@ -189,11 +197,33 @@ const MenuItems = () => {
               />
             </fieldset>
           </div>
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Logo Upload */}
+            <div>
+              <fieldset className="fieldset">
+                <legend className="fieldset-legend">Item Image</legend>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="file-input file-input-bordered w-full"
+                // onChange={handleLogoChange}
+                />
+              </fieldset>
+
+              {/* {logoPreview && (
+                <img
+                  src={logoPreview}
+                  alt="Logo Preview"
+                  className="mt-3 w-24 h-24 rounded-full object-cover border"
+                />
+              )} */}
+            </div>
+          </div>
           {error && <p className="text-red-600">{error}</p>}
           <div className="card-actions justify-end mt-4">
             <button className="btn btn-outline">Cancel</button>
             <button className="btn btn-primary" onClick={createMenuItem}>
-              Create Category
+              Create Menu Item
             </button>
           </div>
         </div>

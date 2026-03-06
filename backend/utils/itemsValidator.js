@@ -25,10 +25,10 @@ const AllowedMenuCategoryFields = (req) => {
 
 // MENU ITEMS
 const validateMenuItemsCreate = (req) => {
-    const { itemname, description, foodType, basePrice, image } = req.body;
-    console.log(req.body, "req.body")
+    const { name, description, foodType, basePrice, image } = req.body;
+    // console.log(req.body, "req.body")
     const numberRegex = /^[0-9]+$/;
-    if (!itemname) {
+    if (!name) {
         throw new Error("Please Enter Item Name")
     } else if (!description) {
         throw new Error("Please Enter Description")
@@ -44,9 +44,9 @@ const validateMenuItemsCreate = (req) => {
     else if (!numberRegex.test(basePrice)) {
         throw new Error("Please Enter Valid Base Price");
     }
-    else if (!image) {
-        throw new Error("Please Upload Items Image");
-    }
+    // else if (!image) {
+    //     throw new Error("Please Upload Items Image");
+    // }
 
 }
 

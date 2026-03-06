@@ -10,17 +10,14 @@ itemsMasterRoute.post("/menuitems/create", AuthSignin, AllowedRoles, async (req,
     try {
         //    console.log(req?.body, "req?.body")
         validateMenuItemsCreate(req);
-        const { restaurantId, categoryId, itemname, description, foodType, basePrice, image } = req.body;
+        const { restaurantId, categoryId, name, description, foodType, basePrice, image } = req.body;
         const restaurant = await Restaurant.findOne({
             isDeleted: false,
             _id: restaurantId,
             ownerId: req.user._id,
         });
         if (!restaurant) {
-            return res.status(403).json({
-                success: false,
-                message: "You are not allowed to add Items to this restaurant"
-            });
+            throw new Error("You are not allowed to add Items to this restaurant");
         }
         const category = await MenuCategory.findOne({
             isDeleted: false,
@@ -29,24 +26,18 @@ itemsMasterRoute.post("/menuitems/create", AuthSignin, AllowedRoles, async (req,
             ownerId: req.user._id,
         });
         if (!category) {
-            return res.status(403).json({
-                success: false,
-                message: "You are not allowed to add Items to this Category"
-            });
+            throw new Error("You are not allowed to add Items to this Category");
         }
 
         const exists = await MenuItem.findOne({
-            name: itemname, restaurantId,
+            name, restaurantId,
             categoryId,
         });
         if (exists) {
-            return res.status(403).json({
-                success: false,
-                message: "Menu Items Already Exists"
-            });
+            throw new Error("Menu Items Already Exists")
         }
         const menuItems = new MenuItem({
-            name: itemname,
+            name,
             restaurantId,
             categoryId,
             description,
@@ -62,7 +53,7 @@ itemsMasterRoute.post("/menuitems/create", AuthSignin, AllowedRoles, async (req,
         });
     }
     catch (err) {
-        return res.status(400).send('Error : ' + err.message)
+        return res.status(400).send(err.message)
     }
 })
 itemsMasterRoute.patch("/menuitems/edit/:id", AuthSignin, AllowedRoles, async (req, res) => {
