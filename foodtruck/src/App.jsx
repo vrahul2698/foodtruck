@@ -20,6 +20,7 @@ import VendorDashboard from './components/Vendor/VendorDashboard'
 import UserDashboard from './components/User/UserDashboard'
 import AdminDashboard from './components/Admin/AdminDashboard'
 import DeliveryDashboard from './components/Delivery/DeliveryDashboard'
+import RequestedRolesList from './components/Admin/RequestedRolesList'
 
 
 function App() {
@@ -72,6 +73,7 @@ function App() {
                 <AdminLayout />
               </RoleProtectedRoutes>
             }>
+              <Route path='requestedroleslist' element={<RequestedRolesList />} />
               <Route path='requestaccess' element={<RequestAccess />} />
               <Route path='dashboard' element={<AdminDashboard />} />
             </Route>

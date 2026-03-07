@@ -90,7 +90,7 @@ authRouter.post("/login", async (req, res) => {
             };
 
             res.cookie("token", token, cookieOptions);
-            return res.send({user : userdetails , token});
+            return res.send({ user: userdetails, token });
 
         }
 
@@ -105,38 +105,27 @@ authRouter.post("/login", async (req, res) => {
         });
     }
 })
-authRouter.post("/accesstoken", async (req, res) => {
-    try {
-        const { token } = req?.body;
-
-      const checkJwt = await jwt.verify(token, "Rahul2698");
-      console.log(checkJwt , "checkJwt")
-          const userCheck = await User.findById(checkJwt._id);
-          if (!userCheck) {
-              throw new Error("User Doesn't Exist")
-          }
-          return res.status(200).send({user : userCheck})
-
-    }
-    catch (error) {
-        // Generic fallback
-        console.log(error)
-        res.status(500).json({
-            success: false,
-            message: "Something went wrong. Please try again later."
-        });
-    }
-})
-
 
 authRouter.post("/logout", async (req, res) => {
     const cookieOptions = {
-  httpOnly: true,
-  sameSite: "lax",
-  path: "/",
-};
-res.clearCookie("token", cookieOptions);
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+    };
+    res.clearCookie("token", cookieOptions);
     res.send("Logged Out Successful")
+})
+
+authRouter.get("/requestedroles", AuthSignin, async (req, res) => {
+    try {
+        const { approvedStatus } = req?.query;
+        console.log(req?.query , "req?.query")
+        const users = await User.find({ isApproved: approvedStatus, isDeleted: false }).select("_id firstName lastName isApproved userStatus requestedRole");
+        res.status(200).send({ success: true, users })
+    }
+    catch (err) {
+        res.status(400).send(err?.message)
+    }
 })
 
 module.exports = authRouter;

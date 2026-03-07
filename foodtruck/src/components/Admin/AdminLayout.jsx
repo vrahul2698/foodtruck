@@ -58,7 +58,8 @@ const AdminLayout = () => {
                 className="menu menu-sm dropdown-content bg-base-100 rounded-box mt-3 w-52 p-2 shadow"
               >
                 <li><Link to="/profile">Profile</Link></li>
-                <li><Link to="/requestaccess">Request Access</Link></li>
+                <li><Link to="requestedroleslist">Request Roles</Link></li>
+                <li><Link to="requestaccess">Request Access</Link></li>
                 <li><a className="cursor-pointer" onClick={handleLogout}>Logout</a></li>
               </ul>
 

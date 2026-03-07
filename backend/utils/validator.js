@@ -21,8 +21,18 @@ const validateProfileEditData = (req) => {
         }
 
 }
+const validateProfileApprovedData = (req) => {
+
+        const ALLOWED_EDIT_FIELDS = ['requestedRole' , 'isApproved', 'userStatus'];
+        const checkingUserDetails = Object.keys(req?.params).every(field => ALLOWED_EDIT_FIELDS?.includes(field));
+        if (!checkingUserDetails) {
+            throw new Error("Invalid Fields")
+        }
+
+}
 
 module.exports = {
     validateSignUpData,
-    validateProfileEditData
+    validateProfileEditData,
+    validateProfileApprovedData
 }

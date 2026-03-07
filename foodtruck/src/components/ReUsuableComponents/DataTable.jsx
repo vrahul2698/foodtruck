@@ -2,6 +2,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import Paper from "@mui/material/Paper";
 
 export default function DataTable({
+  loading = false,
   rows = [],
   columns = [],
   pageSizeOptions = [5, 10],
@@ -14,6 +15,7 @@ export default function DataTable({
   return (
     <Paper sx={{ height: height, width: "100%" }}>
       <DataGrid
+        loading={loading}
         rows={rows}
         columns={columns}
         initialState={{ pagination: { paginationModel } }}

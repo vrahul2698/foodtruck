@@ -38,7 +38,11 @@ const RoleProtectedRoutes = ({ allowedRoles, children }) => {
 
   // If not logged in
   if (loading) {
-    return <div>Loading...!</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-base-200">
+        <span className="loading loading-spinner loading-lg"></span>
+      </div>
+    );
   }
   if (!user) {
     return <Navigate to="/login" replace />;

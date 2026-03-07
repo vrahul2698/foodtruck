@@ -57,7 +57,7 @@ const userSchema = new mongoose.Schema(
         isApproved: {
             type: String,
             enum: ["PENDING", "ACCEPTED", "REJECTED", "PROCESSED"],
-            default: 'PENDING'
+            default: 'ACCEPTED'
         },
         requestedRole: {
             type: String,
