@@ -53,7 +53,7 @@ const Login = () => {
       const query = { password, phoneNumber };
       const user = await axios.post("http://localhost:5000/login", query, { withCredentials: true });
       dispatch(addUser(user?.data?.user));
-localStorage.setItem("token" , user?.data?.token)
+      localStorage.setItem("token", user?.data?.token)
       const role = user?.data?.user?.userStatus;
 
       const roleRedirectMap = {
@@ -77,7 +77,7 @@ localStorage.setItem("token" , user?.data?.token)
     <div className='flex justify-center my-10'>
       <div className='card card-border bg-base-300 w-96'>
         <div className='card-body'>
-          <h2 className="card-title justify-center">{!isLoginForm ? "Sign Up":"Login"}</h2>
+          <h2 className="card-title justify-center">{!isLoginForm ? "Sign Up" : "Login"}</h2>
           <div>
             {!isLoginForm &&
               <>

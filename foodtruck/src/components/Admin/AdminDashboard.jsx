@@ -1,41 +1,37 @@
+import { useEffect, useState } from "react"
 import DataTable from "../ReUsuableComponents/DataTable"
+import Card from "../User/Card"
+import { restaurantList } from "../../services/restauantService";
 
 const AdminDashboard = () => {
-  const columns = [
-    { field: "id", headerName: "ID", width: 70 },
-    { field: "name", headerName: "Item Name", width: 200 },
-    { field: "price", headerName: "Price", width: 120 },
-    {
-      field: "actions",
-      headerName: "Actions",
-      width: 150,
-      renderCell: (params) => (
-        <>
-          {/* <button onClick={() => handleEdit(params.row)}>Edit</button> */}
-          <button className="cursor-pointer">Edit</button>&nbsp;
-          <button className="cursor-pointer">Delete</button>
-        </>
-      )
+  const [restaurantsList, setRestaurantsList] = useState([]);
+  const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    const fetchRestaurantsList = async () => {
+      try {
+        setLoading(true)
+        const res = await restaurantList();
+        console.log(res?.data)
+        setRestaurantsList(res?.data?.data ?? []);
+      }
+      catch (err) {
+        console.log("Error : " + err?.message)
+      } finally {
+        setLoading(false)
+      }
+
     }
-  ];
+    fetchRestaurantsList();
 
-  const rows = [
-    { id: 1, name: "Burger", price: 120 },
-    { id: 2, name: "Pizza", price: 250 }
-  ];
-
+  }, []);
   return (
     <div>
-      Admin
-      <div className="grid md:grid-cols-2 gap-6">
-        <DataTable
-          rows={rows}
-          columns={columns}
-          checkboxSelection={true}
-          pageSizeOptions={[5, 10, 20]}
-        />
+      Admin Dashboard
+      <div className="flex flex-wrap">
+        {restaurantsList?.map(data => (
+          <Card key={data?._id} resName={data?.name} cuisines={data?.cuisines} rating={data?.rating} resImage={data?.restaurantImage} description={data?.description} address={data?.address}/>
+        ))}
       </div>
-
     </div>
   )
 }

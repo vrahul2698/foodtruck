@@ -1,8 +1,14 @@
 import React from 'react'
+import Card from './Card'
 
 const UserDashboard = () => {
   return (
-    <div>UserDashboard</div>
+    <>
+      <div>UserDashboard</div>
+      {/* <div className="flex flex-wrap">
+        <Card/>
+      </div> */}
+    </>
   )
 }
 
