@@ -21,6 +21,7 @@ import UserDashboard from './components/User/UserDashboard'
 import AdminDashboard from './components/Admin/AdminDashboard'
 import DeliveryDashboard from './components/Delivery/DeliveryDashboard'
 import RequestedRolesList from './components/Admin/RequestedRolesList'
+import RestaurantCard from './components/User/RestaurantCard'
 
 
 function App() {
@@ -76,6 +77,7 @@ function App() {
               <Route path='requestedroleslist' element={<RequestedRolesList />} />
               <Route path='requestaccess' element={<RequestAccess />} />
               <Route path='dashboard' element={<AdminDashboard />} />
+              <Route path='restaurant/:id' element={<RestaurantCard />} />
             </Route>
             {/* </Route> */}
 
