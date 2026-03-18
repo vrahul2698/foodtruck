@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from "react";
+import { restaurantMenus } from "../../services/restauantService";
+import { useParams } from "react-router-dom";
 
 const restaurant = {
   name: "Shree Saravana Bhavan",
@@ -14,12 +16,12 @@ const restaurant = {
   isVeg: false,
 };
 
-const deals = [
-  { bank: "YES BANK", title: "7.5% Off Upto ₹100", subtitle: "NO CODE REQUIRED", color: "#1a3c6e" },
-  { bank: "AXIS", title: "Flat ₹150 Off", subtitle: "USE AXISREWARDS", color: "#a0001e" },
-  { bank: "AXIS", title: "Flat ₹120 Off", subtitle: "USE AXIS120", color: "#a0001e" },
-  { bank: "HDFC", title: "10% Off Upto ₹200", subtitle: "USE HDFC10", color: "#004c8f" },
-];
+// const deals = [
+//   { bank: "YES BANK", title: "7.5% Off Upto ₹100", subtitle: "NO CODE REQUIRED", color: "#1a3c6e" },
+//   { bank: "AXIS", title: "Flat ₹150 Off", subtitle: "USE AXISREWARDS", color: "#a0001e" },
+//   { bank: "AXIS", title: "Flat ₹120 Off", subtitle: "USE AXIS120", color: "#a0001e" },
+//   { bank: "HDFC", title: "10% Off Upto ₹200", subtitle: "USE HDFC10", color: "#004c8f" },
+// ];
 
 const menuCategories = [
   {
@@ -77,9 +79,26 @@ const RestaurantCard = ()=> {
   const [cart, setCart] = useState(cartState);
   const [showVegOnly, setShowVegOnly] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const[restaurantDetails , setRestaurantDetails]=useState("")
   const sectionRefs = useRef({});
   const navRef = useRef(null);
   const isScrollingRef = useRef(false);
+const { id } = useParams();
+  useEffect(()=>{
+const fetchRestaurantData = async()=>{
+  try{
+    
+    const res = await restaurantMenus(id);
+    setRestaurantDetails(res?.restaurant ?? "")
+    console.log(res?.restaurant , "restaurant Card")
+
+  }
+  catch(err){
+    console.log("Error :" + err?.message)
+  }
+}
+fetchRestaurantData();
+  },[])
 
   const addToCart = (id) => setCart((c) => ({ ...c, [id]: (c[id] || 0) + 1 }));
   const removeFromCart = (id) => setCart((c) => ({ ...c, [id]: Math.max(0, (c[id] || 0) - 1) }));
@@ -119,15 +138,21 @@ const RestaurantCard = ()=> {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const filteredCategories = menuCategories.map((cat) => ({
-    ...cat,
-    items: cat.items.filter((item) => {
-      if (showVegOnly && !item.veg) return false;
-      if (searchQuery && !item.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-      return true;
-    }),
-  })).filter((cat) => cat.items.length > 0);
+const filteredCategories = restaurantDetails?.categories?.map((cat) => ({
+  ...cat,
+  items: cat.items.filter((item) => {
+    if (showVegOnly && item.foodType !== "VEG") return false;
+    if (searchQuery && !item.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    return true;
+  }),
+})).filter((cat) => cat.items.length > 0);
+  console.log(filteredCategories , "filteredCategories")
 
+  if(!restaurantDetails){
+    return (
+      <div>Loading....</div>
+    )
+  }
   return (
     <div className="min-h-screen" style={{ fontFamily: "'DM Sans', sans-serif", background: "#f5f4f0" }}>
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:wght@700;900&display=swap" rel="stylesheet" />
@@ -137,17 +162,17 @@ const RestaurantCard = ()=> {
         <div className="max-w-2xl mx-auto">
           {/* Breadcrumb */}
           <div className="text-xs mb-4" style={{ color: "rgba(255,255,255,0.4)" }}>
-            Home &nbsp;/&nbsp; India &nbsp;/&nbsp; Dindigul &nbsp;/&nbsp; <span style={{ color: "rgba(255,255,255,0.7)" }}>Shree Saravana Bhavan</span>
+            Home &nbsp;/&nbsp; {restaurantDetails?.address?.state} &nbsp;/&nbsp; {restaurantDetails?.address?.city} &nbsp;/&nbsp; <span style={{ color: "rgba(255,255,255,0.7)" }}>{restaurantDetails?.name}</span>
           </div>
 
           {/* Name */}
           <h1 style={{ fontFamily: "'Fraunces', serif", color: "#ffffff", fontSize: "2rem", lineHeight: 1.15, letterSpacing: "-0.02em" }} className="mb-3">
-            {restaurant.name}
+            {restaurantDetails?.name}
           </h1>
 
           {/* Cuisines */}
           <div className="flex flex-wrap gap-2 mb-4">
-            {restaurant.cuisines.map((c) => (
+            {restaurantDetails?.cuisines?.split(",")?.map((c) => (
               <span key={c} className="badge badge-sm" style={{ background: "rgba(255,255,255,0.12)", color: "#e2c07b", border: "1px solid rgba(226,192,123,0.3)", fontSize: "11px", fontWeight: 500 }}>
                 {c}
               </span>
@@ -176,7 +201,7 @@ const RestaurantCard = ()=> {
                 <div className="flex justify-between items-center mb-3">
                   <div>
                     <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.08em" }}>Outlet</p>
-                    <p style={{ color: "#fff", fontSize: "13px", fontWeight: 500 }}>{restaurant.outlet}</p>
+                    <p style={{ color: "#fff", fontSize: "13px", fontWeight: 500 }}>{restaurantDetails?.address?.city}</p>
                   </div>
                   <span className="badge" style={{ background: "rgba(33,163,93,0.2)", color: "#4ade80", border: "1px solid rgba(74,222,128,0.3)", fontSize: "11px" }}>Open Now</span>
                 </div>
@@ -200,7 +225,7 @@ const RestaurantCard = ()=> {
       </div>
 
       {/* Deals section */}
-      <div className="max-w-2xl mx-auto px-4 py-5">
+      {/* <div className="max-w-2xl mx-auto px-4 py-5">
         <div className="flex justify-between items-center mb-3">
           <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: "1.15rem", color: "#1a1a2e", fontWeight: 700 }}>Deals for you</h2>
           <div className="flex gap-1">
@@ -221,7 +246,7 @@ const RestaurantCard = ()=> {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
 
       {/* Divider */}
       <div style={{ height: 8, background: "#ebebeb" }} />
@@ -235,7 +260,7 @@ const RestaurantCard = ()=> {
               <span className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "#aaa", fontSize: "14px" }}>🔍</span>
               <input
                 className="input input-sm w-full rounded-xl pl-8"
-                style={{ background: "#fff", border: "1px solid #e0e0e0", fontSize: "13px" }}
+                style={{ background: "#fff", border: "1px solid #e0e0e0", fontSize: "13px" , color:"black" }}
                 placeholder="Search within menu..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -249,21 +274,21 @@ const RestaurantCard = ()=> {
 
           {/* Category pills */}
           <div ref={navRef} className="flex gap-2 overflow-x-auto px-4 pb-3" style={{ scrollbarWidth: "none" }}>
-            {menuCategories.map((cat) => (
+            {restaurantDetails?.categories?.map((cat) => (
               <button
-                key={cat.id}
-                data-cat={cat.id}
-                onClick={() => scrollToCategory(cat.id)}
+                key={cat._id}
+                data-cat={cat.name}
+                onClick={() => scrollToCategory(cat.name)}
                 className="flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold transition-all"
                 style={{
-                  background: activeCategory === cat.id ? "#1a1a2e" : "#fff",
-                  color: activeCategory === cat.id ? "#e2c07b" : "#555",
-                  border: activeCategory === cat.id ? "none" : "1px solid #e0e0e0",
+                  background: activeCategory === cat.name ? "#1a1a2e" : "#fff",
+                  color: activeCategory === cat.name ? "#e2c07b" : "#555",
+                  border: activeCategory === cat.name ? "none" : "1px solid #e0e0e0",
                   letterSpacing: "0.03em",
                   fontWeight: 600,
                 }}
               >
-                {cat.label}
+                {cat.name}
               </button>
             ))}
           </div>
@@ -279,7 +304,7 @@ const RestaurantCard = ()=> {
           </div>
         ) : (
           filteredCategories.map((cat) => (
-            <div key={cat.id} ref={(el) => (sectionRefs.current[cat.id] = el)} className="pt-6">
+            <div key={cat._id} ref={(el) => (sectionRefs.current[cat.name] = el)} className="pt-6">
               <div className="flex items-center gap-3 mb-4">
                 <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: "1.1rem", color: "#1a1a2e", fontWeight: 700 }}>
                   {cat.label}
@@ -289,20 +314,20 @@ const RestaurantCard = ()=> {
 
               <div className="flex flex-col gap-4">
                 {cat.items.map((item) => (
-                  <div key={item.id} className="flex gap-3 p-4 rounded-2xl" style={{ background: "#fff", border: "1px solid #f0f0f0", boxShadow: "0 1px 6px rgba(0,0,0,0.04)" }}>
+                  <div key={item._id} className="flex gap-3 p-4 rounded-2xl" style={{ background: "#fff", border: "1px solid #f0f0f0", boxShadow: "0 1px 6px rgba(0,0,0,0.04)" }}>
                     {/* Left: veg/nonveg + info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 mb-1">
                         <span style={{
                           display: "inline-block", width: 13, height: 13, borderRadius: 2,
-                          border: `1.5px solid ${item.veg ? "#21a35d" : "#e53935"}`,
+                          border: `1.5px solid ${item.foodType ==="VEG" ? "#21a35d" : "#e53935"}`,
                           position: "relative", flexShrink: 0
                         }}>
                           <span style={{
                             position: "absolute", top: "50%", left: "50%",
                             transform: "translate(-50%, -50%)",
                             width: 6, height: 6, borderRadius: "50%",
-                            background: item.veg ? "#21a35d" : "#e53935"
+                            background: item.foodType ==="VEG" ? "#21a35d" : "#e53935"
                           }} />
                         </span>
                         {item.orders && (
@@ -312,23 +337,23 @@ const RestaurantCard = ()=> {
                         )}
                       </div>
                       <p style={{ fontWeight: 700, fontSize: "14px", color: "#1a1a2e", marginBottom: 3 }}>{item.name}</p>
-                      <p style={{ fontWeight: 700, fontSize: "14px", color: "#1a1a2e", marginBottom: 4 }}>₹{item.price}</p>
+                      <p style={{ fontWeight: 700, fontSize: "14px", color: "#1a1a2e", marginBottom: 4 }}>₹{item.basePrice}</p>
                       <div className="flex items-center gap-1 mb-2">
-                        <span style={{ color: "#21a35d", fontSize: "12px", fontWeight: 600 }}>★ {item.rating}</span>
+                        <span style={{ color: "#21a35d", fontSize: "12px", fontWeight: 600 }}>★ {item?.rating?.avg ?? 4.5}</span>
                       </div>
-                      <p style={{ fontSize: "12px", color: "#999", lineHeight: 1.5 }}>{item.desc}</p>
+                      <p style={{ fontSize: "12px", color: "#999", lineHeight: 1.5 }}>{item.description}</p>
                     </div>
 
                     {/* Right: image placeholder + add button */}
                     <div className="flex flex-col items-center gap-2 flex-shrink-0">
                       <div className="rounded-xl overflow-hidden" style={{ width: 90, height: 90, background: "linear-gradient(135deg, #f0ede6, #e8e3d8)", position: "relative" }}>
                         <div className="w-full h-full flex items-center justify-center" style={{ fontSize: "2.5rem" }}>
-                          {item.veg ? "🥗" : item.name.toLowerCase().includes("biryani") ? "🍛" : item.name.toLowerCase().includes("chicken") ? "🍗" : "🍽️"}
+                          {item.foodType === "VEG" ? "🥗" : item.name.toLowerCase().includes("biryani") ? "🍛" : item.name.toLowerCase().includes("chicken") ? "🍗" : "🍽️"}
                         </div>
                       </div>
                       {!cart[item.id] ? (
                         <button
-                          onClick={() => addToCart(item.id)}
+                          onClick={() => addToCart(item._id)}
                           className="btn btn-sm"
                           style={{ background: "#fff", color: "#21a35d", border: "2px solid #21a35d", borderRadius: "12px", fontWeight: 700, width: 90, fontSize: "13px", minHeight: 32, height: 32 }}
                         >
@@ -336,9 +361,9 @@ const RestaurantCard = ()=> {
                         </button>
                       ) : (
                         <div className="flex items-center justify-between rounded-xl overflow-hidden" style={{ width: 90, height: 32, background: "#21a35d" }}>
-                          <button onClick={() => removeFromCart(item.id)} style={{ width: 30, height: 32, color: "#fff", fontWeight: 700, fontSize: "18px", background: "transparent", border: "none", cursor: "pointer", lineHeight: 1 }}>−</button>
+                          <button onClick={() => removeFromCart(item._id)} style={{ width: 30, height: 32, color: "#fff", fontWeight: 700, fontSize: "18px", background: "transparent", border: "none", cursor: "pointer", lineHeight: 1 }}>−</button>
                           <span style={{ color: "#fff", fontWeight: 700, fontSize: "14px" }}>{cart[item.id]}</span>
-                          <button onClick={() => addToCart(item.id)} style={{ width: 30, height: 32, color: "#fff", fontWeight: 700, fontSize: "18px", background: "transparent", border: "none", cursor: "pointer", lineHeight: 1 }}>+</button>
+                          <button onClick={() => addToCart(item._id)} style={{ width: 30, height: 32, color: "#fff", fontWeight: 700, fontSize: "18px", background: "transparent", border: "none", cursor: "pointer", lineHeight: 1 }}>+</button>
                         </div>
                       )}
                     </div>

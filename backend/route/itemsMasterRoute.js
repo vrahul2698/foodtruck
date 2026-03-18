@@ -5,7 +5,7 @@ const Restaurant = require("../model/restaurants");
 const MenuCategory = require("../model/menuCategory");
 const { validateMenuItemsCreate, AllowedMenuItemsFields } = require("../utils/itemsValidator");
 const { AuthSignin, AllowedRoles } = require("../middleware/AuthSignin");
-
+const mongoose = require('mongoose');
 itemsMasterRoute.post("/menuitems/create", AuthSignin, AllowedRoles, async (req, res) => {
     try {
         //    console.log(req?.body, "req?.body")
@@ -86,6 +86,103 @@ itemsMasterRoute.delete("/menuitems/delete/:id", AuthSignin, AllowedRoles, async
         return res.status(200).json({ success: true, message: "Deleted Successfully" });
     }
     catch (err) {
+        return res.status(400).send("Error : " + err.message);
+    }
+})
+itemsMasterRoute.get("/restaurantmenu/:id", AuthSignin, AllowedRoles, async (req, res) => {
+    try {
+        const id = req?.params?.id;
+        console.log(id, "id")
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            throw new Error("Invalid restaurantId");
+        }
+        const result = await MenuItem.aggregate([
+            { $match: { restaurantId: new mongoose.Types.ObjectId(id) } },
+            {
+                $lookup: {
+                    from: "menucategories",     // check your exact collection name
+                    localField: "categoryId",
+                    foreignField: "_id",
+                    as: "category"
+                }
+            },
+            { $unwind: "$category" },
+
+            // Group by category
+            {
+                $group: {
+                    _id: "$category._id",
+                    categoryName: { $first: "$category.name" },
+                    items: {
+                        $push: {
+                            _id: "$_id",
+                            name: "$name",
+                            foodType: "$foodType",
+                            description: "$description",
+                            basePrice: "$basePrice",
+                            rating: "$rating",
+                            image: "$image"
+                        }
+                    }
+                }
+            },
+
+            { $sort: { categoryName: 1 } },
+
+            // Group ALL categories into one document
+            {
+                $group: {
+                    _id: null,
+                    categories: {
+                        $push: {
+                            _id: "$_id",
+                            name: "$categoryName",
+                            items: "$items"
+                        }
+                    }
+                }
+            },
+
+            // NOW lookup restaurant (pipeline-only, no localField)
+            {
+                $lookup: {
+                    from: "restaurants",
+                    pipeline: [
+                        { $match: { _id: new mongoose.Types.ObjectId(id) } },
+                        { $project: { name: 1, description: 1, rating: 1, address: 1, contact: 1, cuisines: 1 } }
+                    ],
+                    as: "restaurantData"
+                }
+            },
+
+            { $unwind: "$restaurantData" },
+
+            // Shape the final output
+            {
+                $project: {
+                    _id: 0,
+                    restaurant: {
+                        _id: "$restaurantData._id",
+                        name: "$restaurantData.name",
+                        description: "$restaurantData.description",
+                        rating: "$restaurantData.rating",
+                        address: "$restaurantData.address",
+                        contact: "$restaurantData.contact",
+                        cuisines: "$restaurantData.cuisines",
+                        categories: "$categories"
+                    }
+                }
+            }
+        ]);
+
+        return res.status(200).json({
+            success: true,
+            restaurant: result[0]?.restaurant || null,
+            message: "Fetched Successfully"
+        });
+    }
+    catch (err) {
+        console.log(err, "err")
         return res.status(400).send("Error : " + err.message);
     }
 })
