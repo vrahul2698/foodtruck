@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { restaurantMenus } from "../../services/restauantService";
 import { useParams } from "react-router-dom";
 
@@ -23,54 +23,6 @@ const restaurant = {
 //   { bank: "HDFC", title: "10% Off Upto ₹200", subtitle: "USE HDFC10", color: "#004c8f" },
 // ];
 
-const menuCategories = [
-  {
-    id: "recommended",
-    label: "Recommended",
-    items: [
-      { id: 1, name: "Ghee Roast Dosa", desc: "Crispy dosa made with pure ghee, served with sambar & chutneys", price: 89, veg: true, rating: 4.7, orders: "500+" },
-      { id: 2, name: "Chicken Kothu Parotta", desc: "Flaky parotta shredded & tossed with egg, chicken & spices", price: 149, veg: false, rating: 4.5, orders: "300+" },
-      { id: 3, name: "Onion Uttapam", desc: "Thick rice pancake topped with caramelized onions", price: 79, veg: true, rating: 4.4, orders: "200+" },
-    ],
-  },
-  {
-    id: "breakfast",
-    label: "Breakfast",
-    items: [
-      { id: 4, name: "Idli Sambar (3 pcs)", desc: "Soft steamed idlis with signature sambar & 3 chutneys", price: 59, veg: true, rating: 4.8, orders: "1K+" },
-      { id: 5, name: "Medu Vada (2 pcs)", desc: "Crispy lentil donuts, golden fried, served with coconut chutney", price: 49, veg: true, rating: 4.6, orders: "400+" },
-      { id: 6, name: "Pongal", desc: "Creamy rice & moong dal khichdi seasoned with pepper & ghee", price: 69, veg: true, rating: 4.5, orders: "250+" },
-    ],
-  },
-  {
-    id: "dosas",
-    label: "Dosas",
-    items: [
-      { id: 7, name: "Plain Dosa", desc: "Classic thin crispy crepe with sambar & chutney", price: 55, veg: true, rating: 4.3, orders: "600+" },
-      { id: 8, name: "Masala Dosa", desc: "Crispy dosa stuffed with spiced potato filling", price: 75, veg: true, rating: 4.7, orders: "800+" },
-      { id: 9, name: "Rava Masala Dosa", desc: "Semolina dosa with crispy texture & masala stuffing", price: 85, veg: true, rating: 4.5, orders: "200+" },
-      { id: 10, name: "Egg Dosa", desc: "Classic dosa topped with beaten egg & onions", price: 95, veg: false, rating: 4.4, orders: "150+" },
-    ],
-  },
-  {
-    id: "chinese",
-    label: "Chinese",
-    items: [
-      { id: 11, name: "Gobi Manchurian (Dry)", desc: "Crispy cauliflower florets in Indo-Chinese spicy sauce", price: 129, veg: true, rating: 4.3, orders: "300+" },
-      { id: 12, name: "Chicken Fried Rice", desc: "Wok-tossed rice with chicken, eggs & vegetables", price: 159, veg: false, rating: 4.5, orders: "400+" },
-      { id: 13, name: "Veg Hakka Noodles", desc: "Stir-fried noodles with crunchy vegetables & soy sauce", price: 119, veg: true, rating: 4.2, orders: "200+" },
-    ],
-  },
-  {
-    id: "biryani",
-    label: "Biryani & Rice",
-    items: [
-      { id: 14, name: "Chicken Biryani", desc: "Fragrant basmati rice layered with spiced chicken & fried onions", price: 199, veg: false, rating: 4.6, orders: "700+" },
-      { id: 15, name: "Veg Biryani", desc: "Aromatic rice with fresh vegetables, saffron & whole spices", price: 149, veg: true, rating: 4.3, orders: "300+" },
-      { id: 16, name: "Curd Rice", desc: "Cooling rice mixed with yogurt, tempered with mustard & curry leaves", price: 69, veg: true, rating: 4.7, orders: "400+" },
-    ],
-  },
-];
 
 const cartState = {};
 
@@ -100,12 +52,42 @@ const fetchRestaurantData = async()=>{
 fetchRestaurantData();
   },[])
 
-  const addToCart = (id) => setCart((c) => ({ ...c, [id]: (c[id] || 0) + 1 }));
-  const removeFromCart = (id) => setCart((c) => ({ ...c, [id]: Math.max(0, (c[id] || 0) - 1) }));
-  const totalItems = Object.values(cart).reduce((a, b) => a + b, 0);
-  const totalPrice = menuCategories.flatMap(c => c.items).reduce((sum, item) => sum + (cart[item.id] || 0) * item.price, 0);
+const addToCart = (item) => {
+  setCart((prev) => {
+    const existing = prev[item._id];
+    return {
+      ...prev,
+      [item._id]: existing
+        ? { ...existing, quantity: existing.quantity + 1 }  // increment
+        : { id: item._id, name: item.name, basePrice: Number(item.basePrice), quantity: 1 }, // new entry
+    };
+  });
+};
 
-  const scrollToCategory = (id) => {
+const removeFromCart = (itemId) => {
+  setCart((prev) => {
+    const existing = prev[itemId];
+    if (!existing) return prev;
+
+    if (existing.quantity === 1) {
+      const { [itemId]: _, ...rest } = prev;
+      return rest;                          // remove key entirely
+    }
+
+    return { ...prev, [itemId]: { ...existing, quantity: existing.quantity - 1 } };
+  });
+};
+
+console.log(cart  ,"cart")
+
+const clearCart = () => setCart({});
+
+const cartItems  = Object.values(cart);                                           // array of cart entries
+const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);       // total count
+const totalPrice = cartItems.reduce((sum, item) => sum + item.basePrice * item.quantity, 0); // total price
+const isEmpty    = cartItems.length === 0;
+
+const scrollToCategory = (id) => {
     isScrollingRef.current = true;
     setActiveCategory(id);
     const el = sectionRefs.current[id];
@@ -117,35 +99,42 @@ fetchRestaurantData();
     }
   };
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (isScrollingRef.current) return;
-      const offset = 160;
-      for (const cat of menuCategories) {
-        const el = sectionRefs.current[cat.id];
-        if (el) {
-          const rect = el.getBoundingClientRect();
-          if (rect.top <= offset && rect.bottom > offset) {
-            setActiveCategory(cat.id);
-            // scroll nav pill into view
-            const navEl = navRef.current?.querySelector(`[data-cat="${cat.id}"]`);
-            navEl?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-          }
+useEffect(() => {
+  if (!restaurantDetails?.categories?.length) return; // guard for initial null state
+
+  const handleScroll = () => {
+    if (isScrollingRef.current) return;
+    const offset = 160;
+    for (const cat of restaurantDetails.categories) {
+      const el = sectionRefs.current[cat.name];
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        if (rect.top <= offset && rect.bottom > offset) {
+          setActiveCategory(cat.name);
+          const navEl = navRef.current?.querySelector(`[data-cat="${cat.name}"]`);
+          navEl?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
         }
       }
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    }
+  };
 
-const filteredCategories = restaurantDetails?.categories?.map((cat) => ({
-  ...cat,
-  items: cat.items.filter((item) => {
-    if (showVegOnly && item.foodType !== "VEG") return false;
-    if (searchQuery && !item.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-    return true;
-  }),
-})).filter((cat) => cat.items.length > 0);
+  window.addEventListener("scroll", handleScroll, { passive: true });
+  return () => window.removeEventListener("scroll", handleScroll); // cleanup old listener
+}, [restaurantDetails]); // ← this was the missing piece
+
+
+const filteredCategories = useMemo(() => {
+  return restaurantDetails?.categories
+    ?.map((cat) => ({
+      ...cat,
+      items: cat.items.filter((item) => {
+        if (showVegOnly && item.foodType !== "VEG") return false;
+        if (searchQuery && !item.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+        return true;
+      }),
+    }))
+    .filter((cat) => cat.items.length > 0);
+}, [restaurantDetails, showVegOnly, searchQuery]); // ← only re-runs when these change
   console.log(filteredCategories , "filteredCategories")
 
   if(!restaurantDetails){
@@ -203,7 +192,7 @@ const filteredCategories = restaurantDetails?.categories?.map((cat) => ({
                     <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.08em" }}>Outlet</p>
                     <p style={{ color: "#fff", fontSize: "13px", fontWeight: 500 }}>{restaurantDetails?.address?.city}</p>
                   </div>
-                  <span className="badge" style={{ background: "rgba(33,163,93,0.2)", color: "#4ade80", border: "1px solid rgba(74,222,128,0.3)", fontSize: "11px" }}>Open Now</span>
+                  <span className="badge" style={{ background: "rgba(33,163,93,0.2)", color: "#4ade80", border: "1px solid rgba(74,222,128,0.3)", fontSize: "11px" }}>{restaurantDetails?.isOpened ? "Open Now" : "Closed"}</span>
                 </div>
                 <div>
                   <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.08em" }}>Delivery time</p>
@@ -351,9 +340,9 @@ const filteredCategories = restaurantDetails?.categories?.map((cat) => ({
                           {item.foodType === "VEG" ? "🥗" : item.name.toLowerCase().includes("biryani") ? "🍛" : item.name.toLowerCase().includes("chicken") ? "🍗" : "🍽️"}
                         </div>
                       </div>
-                      {!cart[item.id] ? (
+                      {!cart[item._id] ? (
                         <button
-                          onClick={() => addToCart(item._id)}
+                          onClick={() => addToCart(item)}
                           className="btn btn-sm"
                           style={{ background: "#fff", color: "#21a35d", border: "2px solid #21a35d", borderRadius: "12px", fontWeight: 700, width: 90, fontSize: "13px", minHeight: 32, height: 32 }}
                         >
@@ -361,9 +350,9 @@ const filteredCategories = restaurantDetails?.categories?.map((cat) => ({
                         </button>
                       ) : (
                         <div className="flex items-center justify-between rounded-xl overflow-hidden" style={{ width: 90, height: 32, background: "#21a35d" }}>
-                          <button onClick={() => removeFromCart(item._id)} style={{ width: 30, height: 32, color: "#fff", fontWeight: 700, fontSize: "18px", background: "transparent", border: "none", cursor: "pointer", lineHeight: 1 }}>−</button>
+                          <button onClick={() => removeFromCart(item)} style={{ width: 30, height: 32, color: "#fff", fontWeight: 700, fontSize: "18px", background: "transparent", border: "none", cursor: "pointer", lineHeight: 1 }}>−</button>
                           <span style={{ color: "#fff", fontWeight: 700, fontSize: "14px" }}>{cart[item.id]}</span>
-                          <button onClick={() => addToCart(item._id)} style={{ width: 30, height: 32, color: "#fff", fontWeight: 700, fontSize: "18px", background: "transparent", border: "none", cursor: "pointer", lineHeight: 1 }}>+</button>
+                          <button onClick={() => addToCart(item)} style={{ width: 30, height: 32, color: "#fff", fontWeight: 700, fontSize: "18px", background: "transparent", border: "none", cursor: "pointer", lineHeight: 1 }}>+</button>
                         </div>
                       )}
                     </div>

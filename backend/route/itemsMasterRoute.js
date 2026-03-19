@@ -149,7 +149,7 @@ itemsMasterRoute.get("/restaurantmenu/:id", AuthSignin, AllowedRoles, async (req
                     from: "restaurants",
                     pipeline: [
                         { $match: { _id: new mongoose.Types.ObjectId(id) } },
-                        { $project: { name: 1, description: 1, rating: 1, address: 1, contact: 1, cuisines: 1 } }
+                        { $project: { name: 1, description: 1, rating: 1, address: 1,isOpened:1, contact: 1, cuisines: 1 } }
                     ],
                     as: "restaurantData"
                 }
@@ -169,6 +169,7 @@ itemsMasterRoute.get("/restaurantmenu/:id", AuthSignin, AllowedRoles, async (req
                         address: "$restaurantData.address",
                         contact: "$restaurantData.contact",
                         cuisines: "$restaurantData.cuisines",
+                        isOpened: "$restaurantData.isOpened",
                         categories: "$categories"
                     }
                 }
