@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { restaurantMenus } from "../../services/restauantService";
 import { useParams } from "react-router-dom";
+import { useDispatch , useSelector} from 'react-redux';
+import { addItem, removeItem } from "../../utils/cartSlice";
 
 const restaurant = {
   name: "Shree Saravana Bhavan",
@@ -26,68 +28,77 @@ const restaurant = {
 
 const cartState = {};
 
-const RestaurantCard = ()=> {
+const RestaurantCard = () => {
+  const dispatch = useDispatch();
+  const cartValues = useSelector((store)=> store.cart?.items);
+  console.log(cartValues , "cartValues")
   const [activeCategory, setActiveCategory] = useState("recommended");
   const [cart, setCart] = useState(cartState);
   const [showVegOnly, setShowVegOnly] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const[restaurantDetails , setRestaurantDetails]=useState("")
+  const [restaurantDetails, setRestaurantDetails] = useState("")
   const sectionRefs = useRef({});
   const navRef = useRef(null);
   const isScrollingRef = useRef(false);
-const { id } = useParams();
-  useEffect(()=>{
-const fetchRestaurantData = async()=>{
-  try{
-    
-    const res = await restaurantMenus(id);
-    setRestaurantDetails(res?.restaurant ?? "")
-    console.log(res?.restaurant , "restaurant Card")
+  const { id } = useParams();
+  useEffect(() => {
+    const fetchRestaurantData = async () => {
+      try {
 
-  }
-  catch(err){
-    console.log("Error :" + err?.message)
-  }
-}
-fetchRestaurantData();
-  },[])
+        const res = await restaurantMenus(id);
+        setRestaurantDetails(res?.restaurant ?? "")
+        console.log(res?.restaurant, "restaurant Card")
 
-const addToCart = (item) => {
-  setCart((prev) => {
-    const existing = prev[item._id];
-    return {
-      ...prev,
-      [item._id]: existing
-        ? { ...existing, quantity: existing.quantity + 1 }  // increment
-        : { id: item._id, name: item.name, basePrice: Number(item.basePrice), quantity: 1 }, // new entry
-    };
-  });
-};
-
-const removeFromCart = (itemId) => {
-  setCart((prev) => {
-    const existing = prev[itemId];
-    if (!existing) return prev;
-
-    if (existing.quantity === 1) {
-      const { [itemId]: _, ...rest } = prev;
-      return rest;                          // remove key entirely
+      }
+      catch (err) {
+        console.log("Error :" + err?.message)
+      }
     }
+    fetchRestaurantData();
+  }, [])
 
-    return { ...prev, [itemId]: { ...existing, quantity: existing.quantity - 1 } };
-  });
-};
+  const addToCart = (item) => {
+    setCart((prev) => {
+      const existing = prev[item._id];
+      return {
+        ...prev,
+        [item._id]: existing
+          ? { ...existing, quantity: existing.quantity + 1 }  // increment
+          : { id: item._id, name: item.name, basePrice: Number(item.basePrice), quantity: 1 }, // new entry
+      };
+    });
+    const items = { id: item._id, name: item.name, basePrice: Number(item.basePrice), quantity: 1 };
 
-console.log(cart  ,"cart")
+    dispatch(addItem(items))
+  };
 
-const clearCart = () => setCart({});
+  const removeFromCart = (itemId) => {
+   
+    setCart((prev) => {
+      const existing = prev[itemId];
+       console.log(prev, "prev")
+      if (!existing) return prev;
 
-const cartItems  = Object.values(cart);                                           // array of cart entries
-const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);       // total count
-const totalPrice = cartItems.reduce((sum, item) => sum + item.basePrice * item.quantity, 0); // total price
-const isEmpty    = cartItems.length === 0;
+      if (existing.quantity === 1) {
+        const { [itemId]: _, ...rest } = prev;
+        return rest;                          // remove key entirely
+      }
 
-const scrollToCategory = (id) => {
+      return { ...prev, [itemId]: { ...existing, quantity: existing.quantity - 1 } };
+    });
+    dispatch(removeItem(itemId))
+  };
+
+  // console.log(cart, "cart")
+
+  const clearCart = () => setCart({});
+
+  const cartItems = Object.values(cart);                                           // array of cart entries
+  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);       // total count
+  const totalPrice = cartItems.reduce((sum, item) => sum + item.basePrice * item.quantity, 0); // total price
+  const isEmpty = cartItems.length === 0;
+
+  const scrollToCategory = (id) => {
     isScrollingRef.current = true;
     setActiveCategory(id);
     const el = sectionRefs.current[id];
@@ -99,45 +110,45 @@ const scrollToCategory = (id) => {
     }
   };
 
-useEffect(() => {
-  if (!restaurantDetails?.categories?.length) return; // guard for initial null state
+  useEffect(() => {
+    if (!restaurantDetails?.categories?.length) return; // guard for initial null state
 
-  const handleScroll = () => {
-    if (isScrollingRef.current) return;
-    const offset = 160;
-    for (const cat of restaurantDetails.categories) {
-      const el = sectionRefs.current[cat.name];
-      if (el) {
-        const rect = el.getBoundingClientRect();
-        if (rect.top <= offset && rect.bottom > offset) {
-          setActiveCategory(cat.name);
-          const navEl = navRef.current?.querySelector(`[data-cat="${cat.name}"]`);
-          navEl?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    const handleScroll = () => {
+      if (isScrollingRef.current) return;
+      const offset = 160;
+      for (const cat of restaurantDetails.categories) {
+        const el = sectionRefs.current[cat.name];
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= offset && rect.bottom > offset) {
+            setActiveCategory(cat.name);
+            const navEl = navRef.current?.querySelector(`[data-cat="${cat.name}"]`);
+            navEl?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+          }
         }
       }
-    }
-  };
+    };
 
-  window.addEventListener("scroll", handleScroll, { passive: true });
-  return () => window.removeEventListener("scroll", handleScroll); // cleanup old listener
-}, [restaurantDetails]); // ← this was the missing piece
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll); // cleanup old listener
+  }, [restaurantDetails]); // ← this was the missing piece
 
 
-const filteredCategories = useMemo(() => {
-  return restaurantDetails?.categories
-    ?.map((cat) => ({
-      ...cat,
-      items: cat.items.filter((item) => {
-        if (showVegOnly && item.foodType !== "VEG") return false;
-        if (searchQuery && !item.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-        return true;
-      }),
-    }))
-    .filter((cat) => cat.items.length > 0);
-}, [restaurantDetails, showVegOnly, searchQuery]); // ← only re-runs when these change
-  console.log(filteredCategories , "filteredCategories")
+  const filteredCategories = useMemo(() => {
+    return restaurantDetails?.categories
+      ?.map((cat) => ({
+        ...cat,
+        items: cat.items.filter((item) => {
+          if (showVegOnly && item.foodType !== "VEG") return false;
+          if (searchQuery && !item.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+          return true;
+        }),
+      }))
+      .filter((cat) => cat.items.length > 0);
+  }, [restaurantDetails, showVegOnly, searchQuery]); // ← only re-runs when these change
+  // console.log(filteredCategories, "filteredCategories")
 
-  if(!restaurantDetails){
+  if (!restaurantDetails) {
     return (
       <div>Loading....</div>
     )
@@ -249,7 +260,7 @@ const filteredCategories = useMemo(() => {
               <span className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "#aaa", fontSize: "14px" }}>🔍</span>
               <input
                 className="input input-sm w-full rounded-xl pl-8"
-                style={{ background: "#fff", border: "1px solid #e0e0e0", fontSize: "13px" , color:"black" }}
+                style={{ background: "#fff", border: "1px solid #e0e0e0", fontSize: "13px", color: "black" }}
                 placeholder="Search within menu..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -309,14 +320,14 @@ const filteredCategories = useMemo(() => {
                       <div className="flex items-center gap-1.5 mb-1">
                         <span style={{
                           display: "inline-block", width: 13, height: 13, borderRadius: 2,
-                          border: `1.5px solid ${item.foodType ==="VEG" ? "#21a35d" : "#e53935"}`,
+                          border: `1.5px solid ${item.foodType === "VEG" ? "#21a35d" : "#e53935"}`,
                           position: "relative", flexShrink: 0
                         }}>
                           <span style={{
                             position: "absolute", top: "50%", left: "50%",
                             transform: "translate(-50%, -50%)",
                             width: 6, height: 6, borderRadius: "50%",
-                            background: item.foodType ==="VEG" ? "#21a35d" : "#e53935"
+                            background: item.foodType === "VEG" ? "#21a35d" : "#e53935"
                           }} />
                         </span>
                         {item.orders && (
@@ -350,7 +361,7 @@ const filteredCategories = useMemo(() => {
                         </button>
                       ) : (
                         <div className="flex items-center justify-between rounded-xl overflow-hidden" style={{ width: 90, height: 32, background: "#21a35d" }}>
-                          <button onClick={() => removeFromCart(item)} style={{ width: 30, height: 32, color: "#fff", fontWeight: 700, fontSize: "18px", background: "transparent", border: "none", cursor: "pointer", lineHeight: 1 }}>−</button>
+                          <button onClick={() => removeFromCart(item._id)} style={{ width: 30, height: 32, color: "#fff", fontWeight: 700, fontSize: "18px", background: "transparent", border: "none", cursor: "pointer", lineHeight: 1 }}>−</button>
                           <span style={{ color: "#fff", fontWeight: 700, fontSize: "14px" }}>{cart[item.id]}</span>
                           <button onClick={() => addToCart(item)} style={{ width: 30, height: 32, color: "#fff", fontWeight: 700, fontSize: "18px", background: "transparent", border: "none", cursor: "pointer", lineHeight: 1 }}>+</button>
                         </div>
