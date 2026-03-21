@@ -6,6 +6,7 @@ const restaurantRoute = require("./route/restaurantRoute");
 const profileRoute = require("./route/profileRoute");
 const itemsCategoryRoute = require("./route/itemsCategoryRoute");
 const itemsMasterRoute = require("./route/itemsMasterRoute");
+const cartRoute = require("./route/cartRoute");
 const app = express();
 
 app.use(cors({
@@ -22,6 +23,7 @@ app.use("/", profileRoute);
 app.use("/", restaurantRoute);
 app.use("/", itemsCategoryRoute);
 app.use("/", itemsMasterRoute);
+app.use("/", cartRoute);
 // app.get("/", (req, res) => {
 //     res.send("Food Truck Backend is running🍇😋")
 // })

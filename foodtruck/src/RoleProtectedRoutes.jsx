@@ -10,7 +10,7 @@ const RoleProtectedRoutes = ({ allowedRoles, children }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true)
-  console.log(allowedRoles, "allowedRoles")
+  // console.log(allowedRoles, "allowedRoles")
 
   useEffect(() => {
     const fetchUser = async () => {

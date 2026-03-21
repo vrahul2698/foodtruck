@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { restaurantMenus } from "../../services/restauantService";
 import { useParams } from "react-router-dom";
-import { useDispatch} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addItem, removeItem } from "../../utils/cartSlice";
+import { addCartItems } from "../../services/cartSlice";
 
 const restaurant = {
   name: "Shree Saravana Bhavan",
@@ -57,23 +58,30 @@ const RestaurantCard = () => {
     fetchRestaurantData();
   }, [])
 
-  const addToCart = (item) => {
-    setCart((prev) => {
-      const existing = prev[item._id];
-      return {
-        ...prev,
-        [item._id]: existing
-          ? { ...existing, quantity: existing.quantity + 1 }  // increment
-          : { id: item._id, name: item.name, basePrice: Number(item.basePrice), quantity: 1 }, // new entry
-      };
-    });
-    const items = { id: item._id, name: item.name, basePrice: Number(item.basePrice), quantity: 1 };
+  const addToCart = async (item) => {
+    try {
+      setCart((prev) => {
+        const existing = prev[item._id];
+        return {
+          ...prev,
+          [item._id]: existing
+            ? { ...existing, quantity: existing.quantity + 1 }  // increment
+            : { id: item._id, name: item.name, basePrice: Number(item.basePrice), quantity: 1 }, // new entry
+        };
+      });
+      const items = { id: item._id, name: item.name, basePrice: Number(item.basePrice), quantity: 1 };
+      dispatch(addItem(items));
+      const cartItems = await addCartItems(item._id);
+      console.log(cartItems, "cartItems");
 
-    dispatch(addItem(items))
+    } catch (err) {
+      console.log("Error :" + err?.message, err?.response?.data)
+    }
+
   };
 
   const removeFromCart = (itemId) => {
-   
+
     setCart((prev) => {
       const existing = prev[itemId];
       //  console.log(prev, "prev")
