@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { restaurantMenus } from "../../services/restauantService";
 import { useParams } from "react-router-dom";
-import { useDispatch , useSelector} from 'react-redux';
+import { useDispatch} from 'react-redux';
 import { addItem, removeItem } from "../../utils/cartSlice";
 
 const restaurant = {
@@ -30,8 +30,8 @@ const cartState = {};
 
 const RestaurantCard = () => {
   const dispatch = useDispatch();
-  const cartValues = useSelector((store)=> store.cart?.items);
-  console.log(cartValues , "cartValues")
+  // const cartValues = useSelector((store)=> store.cart?.items);
+  // console.log(cartValues , "cartValues")
   const [activeCategory, setActiveCategory] = useState("recommended");
   const [cart, setCart] = useState(cartState);
   const [showVegOnly, setShowVegOnly] = useState(false);
@@ -47,7 +47,7 @@ const RestaurantCard = () => {
 
         const res = await restaurantMenus(id);
         setRestaurantDetails(res?.restaurant ?? "")
-        console.log(res?.restaurant, "restaurant Card")
+        // console.log(res?.restaurant, "restaurant Card")
 
       }
       catch (err) {
@@ -76,7 +76,7 @@ const RestaurantCard = () => {
    
     setCart((prev) => {
       const existing = prev[itemId];
-       console.log(prev, "prev")
+      //  console.log(prev, "prev")
       if (!existing) return prev;
 
       if (existing.quantity === 1) {
@@ -96,7 +96,6 @@ const RestaurantCard = () => {
   const cartItems = Object.values(cart);                                           // array of cart entries
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);       // total count
   const totalPrice = cartItems.reduce((sum, item) => sum + item.basePrice * item.quantity, 0); // total price
-  const isEmpty = cartItems.length === 0;
 
   const scrollToCategory = (id) => {
     isScrollingRef.current = true;

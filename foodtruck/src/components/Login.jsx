@@ -59,7 +59,7 @@ const Login = () => {
       const roleRedirectMap = {
         USER: "/user",
         VENDOR: "/vendor",
-        ADMIN: "/admin",
+        ADMIN: "/admin/dashboard",
         DELIVERY: "/delivery",
       };
       console.log(roleRedirectMap[role], "roleRedirectMap[role]")
