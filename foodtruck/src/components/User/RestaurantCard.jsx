@@ -3,7 +3,7 @@ import { restaurantMenus } from "../../services/restauantService";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { addItem, removeItem } from "../../utils/cartSlice";
-import { addCartItems } from "../../services/cartSlice";
+import { addCartItems, removeCartItem } from "../../services/cartService";
 
 const restaurant = {
   name: "Shree Saravana Bhavan",
@@ -31,8 +31,8 @@ const cartState = {};
 
 const RestaurantCard = () => {
   const dispatch = useDispatch();
-  // const cartValues = useSelector((store)=> store.cart?.items);
-  // console.log(cartValues , "cartValues")
+  const cartValues = useSelector((store)=> store.cart?.items);
+  console.log(cartValues , "cartValues")
   const [activeCategory, setActiveCategory] = useState("recommended");
   const [cart, setCart] = useState(cartState);
   const [showVegOnly, setShowVegOnly] = useState(false);
@@ -59,47 +59,38 @@ const RestaurantCard = () => {
   }, [])
 
   const addToCart = async (item) => {
+    const items = { id: item._id, name: item.name, basePrice: Number(item.basePrice), quantity: 1 };
+    dispatch(addItem(items));
     try {
-      setCart((prev) => {
-        const existing = prev[item._id];
-        return {
-          ...prev,
-          [item._id]: existing
-            ? { ...existing, quantity: existing.quantity + 1 }  // increment
-            : { id: item._id, name: item.name, basePrice: Number(item.basePrice), quantity: 1 }, // new entry
-        };
-      });
-      const items = { id: item._id, name: item.name, basePrice: Number(item.basePrice), quantity: 1 };
-      dispatch(addItem(items));
       const cartItems = await addCartItems(item._id);
       console.log(cartItems, "cartItems");
 
     } catch (err) {
+      dispatch(removeItem(item._id));        // rollback on failure
+      alert.error("Failed to add item");
       console.log("Error :" + err?.message, err?.response?.data)
     }
 
   };
 
-  const removeFromCart = (itemId) => {
+  const removeFromCart = async (itemId) => {
+    const snapshot = cartItems[itemId];  // ✅ capture BEFORE dispatch
+    if (!snapshot) return;
 
-    setCart((prev) => {
-      const existing = prev[itemId];
-      //  console.log(prev, "prev")
-      if (!existing) return prev;
+    dispatch(removeItem(itemId));         // optimistic update
 
-      if (existing.quantity === 1) {
-        const { [itemId]: _, ...rest } = prev;
-        return rest;                          // remove key entirely
-      }
-
-      return { ...prev, [itemId]: { ...existing, quantity: existing.quantity - 1 } };
-    });
-    dispatch(removeItem(itemId))
+    try {
+      await removeCartItem(id, itemId);
+    } catch (err) {
+      dispatch(addItem(snapshot));      // rollback — but addItem will increment!
+      alert.error("Could not remove item");
+      console.log(err, "err-removeFromCart")
+    }
   };
 
   // console.log(cart, "cart")
 
-  const clearCart = () => setCart({});
+  // const clearCart = () => setCart({});
 
   const cartItems = Object.values(cart);                                           // array of cart entries
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);       // total count

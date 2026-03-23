@@ -3,6 +3,7 @@ const { AuthSignin } = require("../middleware/AuthSignin");
 const Cart = require("../model/cart");
 const cartRoute = express.Router();
 const MenuItem = require("../model/menuItem");
+const mongoose = require("mongoose")
 
 cartRoute.post("/addcart", AuthSignin, async (req, res) => {
     try {
@@ -34,16 +35,15 @@ cartRoute.post("/addcart", AuthSignin, async (req, res) => {
                 });
             }
         }
-        const cart = await Cart.findOneAndUpdate({userId, 'items.menuItem': foodItemId },
+        const cart = await Cart.findOneAndUpdate({ userId, 'items.menuItem': foodItemId },
             {
                 $inc: {
                     'items.$.quantity': quantity,
-                    totalPrice: menuItem.basePrice * quantity
                 }
             }, { new: true }
         )
         if (!cart) {
-            const updatedCart = await Cart.findOneAndUpdate({userId }, {
+            const updatedCart = await Cart.findOneAndUpdate({ userId }, {
                 $push: {
                     items: {
                         menuItem: menuItem?._id,
@@ -54,7 +54,6 @@ cartRoute.post("/addcart", AuthSignin, async (req, res) => {
                     }
                 },
                 $set: { restaurantId: menuItem?.restaurantId },
-                $inc: { totalPrice: menuItem.basePrice * quantity }
             }, { new: true, upsert: true });
             return res.status(200).json(updatedCart);
         }
@@ -62,9 +61,63 @@ cartRoute.post("/addcart", AuthSignin, async (req, res) => {
 
     }
     catch (err) {
-        console.log(err , "err")
+        console.log(err, "err")
         res.status(500).send("Error :" + err?.message)
     }
 })
 
+cartRoute.patch("/removecartitem/:resId/:itemId", AuthSignin, async (req, res) => {
+    try {
+        const { resId, itemId } = req?.params;
+        const userId = req?.user?._id;
+        if (!resId || !itemId) {
+            throw new Error("Invalid Fields")
+        }
+        const existingCart = await Cart.findOne({ userId, restaurantId: resId, "items.menuItem": itemId });
+        if (!existingCart) {
+            throw new Error("Item is not Available in Cart")
+        }
+        /*
+        4 conndtions 
+        if length > 1 in items 
+            - if quantity is 1 means remove the whole object 
+            - if quantity is > 1 means subtract one
+        if length 1 in items
+            - if quantity is 1 means remove the whole object or else set items = []
+            - if quantity is > 1 means subtract one
+        */
+        const decrementCart = await Cart.findOneAndUpdate({
+            userId, restaurantId: resId, items: {
+                $elemMatch: {
+                    menuItem: itemId,
+                    quantity: { $gt: 1 }
+                }
+            }
+        }, {
+            $inc: { "items.$.quantity": -1 }
+        });
+        console.log(decrementCart , "decrementCart")
+        if (decrementCart) return { cart: decrementCart, emptied: false }
+        const pulledCart = await Cart.findOneAndUpdate(
+            {
+                userId,
+                restaurantId: resId,
+                "items.menuItem": itemId,
+            },
+            {
+                $pull: { items: { menuItem: new mongoose.Types.ObjectId(itemId) } },
+            },
+            { new: true }
+        );
+        if (pulledCart.items.length === 0) {
+            await Cart.findByIdAndDelete(pulledCart._id);
+            return { cart: null, emptied: true }
+        }
+
+    }
+    catch (err) {
+        console.log(err, 'err - 75 CartRoute');
+        res.status(500).send("error" + err?.message)
+    }
+})
 module.exports = cartRoute;

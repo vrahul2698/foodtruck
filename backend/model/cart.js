@@ -9,7 +9,12 @@ const cartSchema = new mongoose.Schema({
         quantity: { type: Number, default: 1 },
         image: String
     }],
-    totalPrice: { type: Number, default: 0 }
 }, { timestamps: true });
+
+cartSchema.virtual("totalPrice").get(function () {
+    return this.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+});
+cartSchema.set("toJSON", { virtuals: true })
+cartSchema.set("toObject", { virtuals: true })
 
 module.exports = mongoose.model("Cart", cartSchema)
