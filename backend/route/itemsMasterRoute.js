@@ -92,7 +92,7 @@ itemsMasterRoute.delete("/menuitems/delete/:id", AuthSignin, AllowedRoles, async
 itemsMasterRoute.get("/restaurantmenu/:id", AuthSignin, AllowedRoles, async (req, res) => {
     try {
         const id = req?.params?.id;
-        console.log(id, "id")
+        // console.log(id, "id")
         if (!mongoose.Types.ObjectId.isValid(id)) {
             throw new Error("Invalid restaurantId");
         }

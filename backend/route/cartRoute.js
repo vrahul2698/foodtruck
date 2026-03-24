@@ -66,6 +66,7 @@ cartRoute.post("/addcart", AuthSignin, async (req, res) => {
     }
 })
 
+
 cartRoute.patch("/removecartitem/:resId/:itemId", AuthSignin, async (req, res) => {
     try {
         const { resId, itemId } = req?.params;
@@ -96,7 +97,6 @@ cartRoute.patch("/removecartitem/:resId/:itemId", AuthSignin, async (req, res) =
         }, {
             $inc: { "items.$.quantity": -1 }
         });
-        console.log(decrementCart , "decrementCart")
         if (decrementCart) return { cart: decrementCart, emptied: false }
         const pulledCart = await Cart.findOneAndUpdate(
             {
@@ -118,6 +118,23 @@ cartRoute.patch("/removecartitem/:resId/:itemId", AuthSignin, async (req, res) =
     catch (err) {
         console.log(err, 'err - 75 CartRoute');
         res.status(500).send("error" + err?.message)
+    }
+})
+
+cartRoute.get("/cartitems/:resId", AuthSignin, async (req, res) => {
+    try {
+        const userId = req?.user?._id;
+        const { resId } = req?.params;
+        if (!resId) {
+            throw new Error("Restaurant id not found");
+        }
+        const cartitems = await Cart.findOne({ userId, restaurantId: resId });
+        return res.status(200).json(cartitems);
+
+    }
+    catch (err) {
+        console.log(err, "err")
+        res.status(500).send("Error :" + err?.message)
     }
 })
 module.exports = cartRoute;

@@ -22,6 +22,7 @@ import AdminDashboard from './components/Admin/AdminDashboard'
 import DeliveryDashboard from './components/Delivery/DeliveryDashboard'
 import RequestedRolesList from './components/Admin/RequestedRolesList'
 import RestaurantCard from './components/User/RestaurantCard'
+import AddToCart from './components/User/AddToCart'
 
 
 function App() {
@@ -78,6 +79,7 @@ function App() {
               <Route path='requestaccess' element={<RequestAccess />} />
               <Route path='dashboard' element={<AdminDashboard />} />
               <Route path='restaurant/:id' element={<RestaurantCard />} />
+              <Route path='addtocart' element={<AddToCart />} />
             </Route>
             {/* </Route> */}
 

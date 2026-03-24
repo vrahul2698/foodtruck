@@ -10,7 +10,7 @@ itemsCategoryRoute.post("/itemscategory", AuthSignin, AllowedRoles, async (req, 
 
     try {
         // validate
-        console.log(req.body, "req.body")
+        // console.log(req.body, "req.body")
         validateMenuCategoryCreate(req);
         const { category, restaurantId } = req.body;
         const restaurant = await Restaurant.findOne({

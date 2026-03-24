@@ -2,22 +2,9 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { restaurantMenus } from "../../services/restauantService";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
-import { addItem, removeItem } from "../../utils/cartSlice";
-import { addCartItems, removeCartItem } from "../../services/cartService";
+import { addItem, removeItem , getItems} from "../../utils/cartSlice";
+import { addCartItems, removeCartItem, getCartItems } from "../../services/cartService";
 
-const restaurant = {
-  name: "Shree Saravana Bhavan",
-  rating: 4.6,
-  ratingCount: "14K+",
-  deliveryRatings: 3750,
-  price: "₹200 for two",
-  cuisines: ["South Indian", "Chinese", "North Indian"],
-  address: "JPD Complex, Near EB Office, Natham Main Road, Dindigul Locality, Dindigul",
-  phone: "+919245405060",
-  deliveryTime: "15–20 mins",
-  outlet: "Dindigul Locality",
-  isVeg: false,
-};
 
 // const deals = [
 //   { bank: "YES BANK", title: "7.5% Off Upto ₹100", subtitle: "NO CODE REQUIRED", color: "#1a3c6e" },
@@ -26,15 +13,10 @@ const restaurant = {
 //   { bank: "HDFC", title: "10% Off Upto ₹200", subtitle: "USE HDFC10", color: "#004c8f" },
 // ];
 
-
-const cartState = {};
-
 const RestaurantCard = () => {
   const dispatch = useDispatch();
-  const cartValues = useSelector((store)=> store.cart?.items);
-  console.log(cartValues , "cartValues")
+  const cartValues = useSelector((store) => store.cart?.items);
   const [activeCategory, setActiveCategory] = useState("recommended");
-  const [cart, setCart] = useState(cartState);
   const [showVegOnly, setShowVegOnly] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [restaurantDetails, setRestaurantDetails] = useState("")
@@ -48,7 +30,6 @@ const RestaurantCard = () => {
 
         const res = await restaurantMenus(id);
         setRestaurantDetails(res?.restaurant ?? "")
-        // console.log(res?.restaurant, "restaurant Card")
 
       }
       catch (err) {
@@ -57,14 +38,32 @@ const RestaurantCard = () => {
     }
     fetchRestaurantData();
   }, [])
+  useEffect(() => {
+    const fetchCartItems = async () => {
+      try {
+
+        const res = await getCartItems(id);
+        const normalizeItems = (itemsArray) => {
+          return itemsArray.reduce((acc, item) => {
+            acc[item.menuItem] = item; // array → object
+            return acc;
+          }, {});
+        };
+        dispatch(getItems(normalizeItems(res?.items ?? {})))
+
+      }
+      catch (err) {
+        console.log("Error :" + err?.message)
+      }
+    }
+    fetchCartItems();
+  }, [])
 
   const addToCart = async (item) => {
-    const items = { id: item._id, name: item.name, basePrice: Number(item.basePrice), quantity: 1 };
+    const items = { menuItem: item._id, name: item.name, price: Number(item.basePrice), quantity: 1 };
     dispatch(addItem(items));
     try {
       const cartItems = await addCartItems(item._id);
-      console.log(cartItems, "cartItems");
-
     } catch (err) {
       dispatch(removeItem(item._id));        // rollback on failure
       alert.error("Failed to add item");
@@ -74,11 +73,9 @@ const RestaurantCard = () => {
   };
 
   const removeFromCart = async (itemId) => {
-    const snapshot = cartItems[itemId];  // ✅ capture BEFORE dispatch
+    const snapshot = cartValues[itemId];  // ✅ capture BEFORE dispatch
     if (!snapshot) return;
-
-    dispatch(removeItem(itemId));         // optimistic update
-
+    dispatch(removeItem(itemId));
     try {
       await removeCartItem(id, itemId);
     } catch (err) {
@@ -87,14 +84,11 @@ const RestaurantCard = () => {
       console.log(err, "err-removeFromCart")
     }
   };
-
-  // console.log(cart, "cart")
-
   // const clearCart = () => setCart({});
 
-  const cartItems = Object.values(cart);                                           // array of cart entries
+  const cartItems = Object.values(cartValues);                                           // array of cart entries
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);       // total count
-  const totalPrice = cartItems.reduce((sum, item) => sum + item.basePrice * item.quantity, 0); // total price
+  const totalPrice = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0); // total price
 
   const scrollToCategory = (id) => {
     isScrollingRef.current = true;
@@ -143,8 +137,7 @@ const RestaurantCard = () => {
         }),
       }))
       .filter((cat) => cat.items.length > 0);
-  }, [restaurantDetails, showVegOnly, searchQuery]); // ← only re-runs when these change
-  // console.log(filteredCategories, "filteredCategories")
+  }, [restaurantDetails, showVegOnly, searchQuery]);
 
   if (!restaurantDetails) {
     return (
@@ -180,11 +173,11 @@ const RestaurantCard = () => {
           {/* Stats row */}
           <div className="flex items-center gap-4 mb-4">
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style={{ background: "#21a35d", backdropFilter: "blur(10px)" }}>
-              <span style={{ color: "#fff", fontWeight: 700, fontSize: "14px" }}>★ {restaurant.rating}</span>
-              <span style={{ color: "rgba(255,255,255,0.8)", fontSize: "12px" }}>({restaurant.ratingCount} ratings)</span>
+              <span style={{ color: "#fff", fontWeight: 700, fontSize: "14px" }}>★ {"4.4"}</span>
+              <span style={{ color: "rgba(255,255,255,0.8)", fontSize: "12px" }}>({"220k"} ratings)</span>
             </div>
             <div style={{ color: "rgba(255,255,255,0.6)", fontSize: "13px" }}>•</div>
-            <span style={{ color: "rgba(255,255,255,0.8)", fontSize: "13px" }}>{restaurant.price}</span>
+            <span style={{ color: "rgba(255,255,255,0.8)", fontSize: "13px" }}>{"200 for two"}</span>
           </div>
 
           {/* Info card */}
@@ -205,7 +198,7 @@ const RestaurantCard = () => {
                 </div>
                 <div>
                   <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.08em" }}>Delivery time</p>
-                  <p style={{ color: "#fff", fontSize: "13px", fontWeight: 500 }}>{restaurant.deliveryTime}</p>
+                  <p style={{ color: "#fff", fontSize: "13px", fontWeight: 500 }}>{"20 mins"}</p>
                 </div>
               </div>
             </div>
@@ -349,7 +342,7 @@ const RestaurantCard = () => {
                           {item.foodType === "VEG" ? "🥗" : item.name.toLowerCase().includes("biryani") ? "🍛" : item.name.toLowerCase().includes("chicken") ? "🍗" : "🍽️"}
                         </div>
                       </div>
-                      {!cart[item._id] ? (
+                      {!cartValues[item._id] ? (
                         <button
                           onClick={() => addToCart(item)}
                           className="btn btn-sm"
@@ -359,8 +352,8 @@ const RestaurantCard = () => {
                         </button>
                       ) : (
                         <div className="flex items-center justify-between rounded-xl overflow-hidden" style={{ width: 90, height: 32, background: "#21a35d" }}>
-                          <button onClick={() => removeFromCart(item._id)} style={{ width: 30, height: 32, color: "#fff", fontWeight: 700, fontSize: "18px", background: "transparent", border: "none", cursor: "pointer", lineHeight: 1 }}>−</button>
-                          <span style={{ color: "#fff", fontWeight: 700, fontSize: "14px" }}>{cart[item.id]}</span>
+                          <button onClick={() =>removeFromCart(item._id)} style={{ width: 30, height: 32, color: "#fff", fontWeight: 700, fontSize: "18px", background: "transparent", border: "none", cursor: "pointer", lineHeight: 1 }}>−</button>
+                          <span style={{ color: "#fff", fontWeight: 700, fontSize: "14px" }}>{cartValues[item.id]}</span>
                           <button onClick={() => addToCart(item)} style={{ width: 30, height: 32, color: "#fff", fontWeight: 700, fontSize: "18px", background: "transparent", border: "none", cursor: "pointer", lineHeight: 1 }}>+</button>
                         </div>
                       )}

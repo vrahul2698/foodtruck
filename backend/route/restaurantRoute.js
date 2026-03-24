@@ -11,7 +11,7 @@ restaurantRouter.post("/restaurant", AuthSignin, async (req, res) => {
         const { name, description, cuisines, restaurantImage, contact, address, resOwnerId, isOpened } = req?.body?.query;
         const ownerId = resOwnerId ? resOwnerId : req.user._id;
         const query = { name, description, ownerId, cuisines, restaurantImage, contact, address, isOpened };
-        console.log(query, "query")
+        // console.log(query, "query")
 
         const exists = await Restaurant.findOne({
             name,

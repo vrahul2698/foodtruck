@@ -10,7 +10,6 @@ const AdminLayout = () => {
 
   const user = useSelector((store) => store?.user);
   const cartCount = useSelector((store)=> store.cart?.items);
-  console.log(cartCount, "cartCount")
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const handleLogout = async () => {
@@ -47,7 +46,7 @@ const AdminLayout = () => {
           <div className="flex-none flex items-center gap-3">
             <p className="text-lg">Hello {user?.firstName}</p>
             {/* Cart Icon with Badge */}
-            <Link to="/cart" className="btn btn-ghost btn-circle relative">
+            <Link to="addtocart" className="btn btn-ghost btn-circle relative">
               <div className="indicator">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
