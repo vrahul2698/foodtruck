@@ -258,7 +258,7 @@ export default function CartPage({
                             <span className="total-amount">₹{grandTotal}</span>
                         </div>
 
-                        <button className="place-order-btn" onClick={onPlaceOrder}>
+                        <button className="place-order-btn" onClick={()=>onPlaceOrder(grandTotal)}>
                             Place order
                         </button>
 

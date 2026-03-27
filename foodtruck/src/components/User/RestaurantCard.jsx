@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { restaurantMenus } from "../../services/restauantService";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
-import { addItem, removeItem , getItems} from "../../utils/cartSlice";
+import { addItem, removeItem , getItems, getRestaurantId} from "../../utils/cartSlice";
 import { addCartItems, removeCartItem, getCartItems } from "../../services/cartService";
 
 
@@ -43,6 +43,8 @@ const RestaurantCard = () => {
       try {
 
         const res = await getCartItems(id);
+        console.log(res, "cartItems")
+        dispatch(getRestaurantId(res?.restaurantId ?? ""));
         const normalizeItems = (itemsArray) => {
           return itemsArray.reduce((acc, item) => {
             acc[item.menuItem] = item; // array → object
@@ -62,6 +64,7 @@ const RestaurantCard = () => {
   const addToCart = async (item) => {
     const items = { menuItem: item._id, name: item.name, price: Number(item.basePrice), quantity: 1 };
     dispatch(addItem(items));
+    dispatch(getRestaurantId(id ?? ""));
     try {
       const cartItems = await addCartItems(item._id);
     } catch (err) {
