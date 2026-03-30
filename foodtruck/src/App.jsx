@@ -4,7 +4,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 import Feed from './components/Feed'
 import Login from './components/Login'
 import Profile from './components/profile'
-import { Provider } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import appStore from './utils/appStore'
 import RequestAccess from './components/RequestAccess'
 import RestaurantMaster from './components/RestaurantMaster';
@@ -23,13 +23,39 @@ import DeliveryDashboard from './components/Delivery/DeliveryDashboard'
 import RequestedRolesList from './components/Admin/RequestedRolesList'
 import RestaurantCard from './components/User/RestaurantCard'
 import AddToCart from './components/User/AddToCart'
+import { useEffect } from 'react'
+import { getCartItems } from './services/cartService'
+import { getItems, getRestaurantId } from './utils/cartSlice'
 
 
 function App() {
-
+  const user = useSelector((store) => store?.user);
+  const dispatch = useDispatch();
+    useEffect(() => {
+      if(!user) return;
+      const fetchCartItems = async () => {
+        try {
+  
+          const res = await getCartItems();
+          console.log(res, "cartItems")
+          dispatch(getRestaurantId(res?.restaurantId ?? ""));
+          const normalizeItems = (itemsArray) => {
+            return itemsArray.reduce((acc, item) => {
+              acc[item.menuItem] = item; // array → object
+              return acc;
+            }, {});
+          };
+          dispatch(getItems(normalizeItems(res?.items ?? {})))
+  
+        }
+        catch (err) {
+          console.log("Error :" + err?.message)
+        }
+      }
+      fetchCartItems();
+    }, [user])
   return (
     <>
-      <Provider store={appStore}>
         <BrowserRouter>
           <Routes>
             <Route path='/' element={<Login />} />
@@ -86,7 +112,7 @@ function App() {
             {/* </Route> */}
           </Routes>
         </BrowserRouter>
-      </Provider>
+     
     </>
   )
 }

@@ -18,13 +18,24 @@ const styles = `
   }
 
   /* ── LEFT: item list ── */
-  .order-title {
-    font-size: 16px;
-    font-weight: 500;
-    margin-bottom: 14px;
-  }
+.order-title {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-  .item-list { display: flex; flex-direction: column; gap: 10px; }
+  .item-list { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 10px; 
+  max-height: 380px; /* adjust based on your sidebar/cart height */
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 4px; /* prevents scrollbar from overlapping content */
+    }
 
   .item-row {
     display: flex;
@@ -88,7 +99,8 @@ const styles = `
     border-radius: 16px;
     padding: 20px;
     position: sticky;
-    top: 16px;
+    margin-top: 36px;
+    top: 24px;
   }
 
   .summary-title { font-size: 15px; font-weight: 500; margin-bottom: 14px; color: #1a1a18; }
@@ -183,7 +195,9 @@ export default function CartPage({
 
                 {/* ── LEFT: order items ── */}
                 <div>
-                    <p className="order-title">Order items</p>
+                    <p className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
+                        Order items
+                    </p>
                     <div className="item-list">
                         {cartItems.map((item) => (
                             <div className="item-row" key={item._id}>
@@ -258,7 +272,7 @@ export default function CartPage({
                             <span className="total-amount">₹{grandTotal}</span>
                         </div>
 
-                        <button className="place-order-btn" onClick={()=>onPlaceOrder(grandTotal)}>
+                        <button className="place-order-btn" onClick={() => onPlaceOrder(grandTotal)}>
                             Place order
                         </button>
 

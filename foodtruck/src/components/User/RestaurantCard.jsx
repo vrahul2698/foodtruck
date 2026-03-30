@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { restaurantMenus } from "../../services/restauantService";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
-import { addItem, removeItem , getItems, getRestaurantId} from "../../utils/cartSlice";
+import { addItem, removeItem, getItems, getRestaurantId } from "../../utils/cartSlice";
 import { addCartItems, removeCartItem, getCartItems } from "../../services/cartService";
 
 
@@ -29,6 +29,7 @@ const RestaurantCard = () => {
       try {
 
         const res = await restaurantMenus(id);
+        // console.log(res, "restaurantDetails")
         setRestaurantDetails(res?.restaurant ?? "")
 
       }
@@ -42,7 +43,7 @@ const RestaurantCard = () => {
     const fetchCartItems = async () => {
       try {
 
-        const res = await getCartItems(id);
+        const res = await getCartItems();
         console.log(res, "cartItems")
         dispatch(getRestaurantId(res?.restaurantId ?? ""));
         const normalizeItems = (itemsArray) => {
@@ -62,11 +63,12 @@ const RestaurantCard = () => {
   }, [])
 
   const addToCart = async (item) => {
-    const items = { menuItem: item._id, name: item.name, price: Number(item.basePrice), quantity: 1 };
+    console.log(item, "addToCart")
+    const items = { menuItem: item._id, name: item.name, image: item?.image, price: Number(item.basePrice), quantity: 1 };
     dispatch(addItem(items));
     dispatch(getRestaurantId(id ?? ""));
     try {
-      const cartItems = await addCartItems(item._id);
+      await addCartItems(item._id);
     } catch (err) {
       dispatch(removeItem(item._id));        // rollback on failure
       alert.error("Failed to add item");
@@ -355,7 +357,7 @@ const RestaurantCard = () => {
                         </button>
                       ) : (
                         <div className="flex items-center justify-between rounded-xl overflow-hidden" style={{ width: 90, height: 32, background: "#21a35d" }}>
-                          <button onClick={() =>removeFromCart(item._id)} style={{ width: 30, height: 32, color: "#fff", fontWeight: 700, fontSize: "18px", background: "transparent", border: "none", cursor: "pointer", lineHeight: 1 }}>−</button>
+                          <button onClick={() => removeFromCart(item._id)} style={{ width: 30, height: 32, color: "#fff", fontWeight: 700, fontSize: "18px", background: "transparent", border: "none", cursor: "pointer", lineHeight: 1 }}>−</button>
                           <span style={{ color: "#fff", fontWeight: 700, fontSize: "14px" }}>{cartValues[item.id]}</span>
                           <button onClick={() => addToCart(item)} style={{ width: 30, height: 32, color: "#fff", fontWeight: 700, fontSize: "18px", background: "transparent", border: "none", cursor: "pointer", lineHeight: 1 }}>+</button>
                         </div>

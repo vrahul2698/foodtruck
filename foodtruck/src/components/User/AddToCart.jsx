@@ -1,15 +1,14 @@
 import React, { useState } from 'react'
 import CartPage from './Cartpage'
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { triggerPayment } from '../../services/paymentService';
 
 const AddToCart = () => {
     const [promoCode, setPromoCode] = useState("");
-    const [discount, setDiscount] = useState("");
-    const dispatch = useDispatch();
+    const [discount] = useState("");
+    // const dispatch = useDispatch();
     const cartValues = useSelector((store) => store.cart?.items);
     const restaurantId = useSelector((store) => store.cart?.restaurantId);
-    console.log(cartValues,restaurantId, "cartValues")
     const handleApplyPromo = () => {
 
     }
@@ -21,6 +20,25 @@ const AddToCart = () => {
                 restaurantId
             }
             const paymentResponse = await triggerPayment(paymentData);
+            const { amount, keyId, currency, orderId, notes } = paymentResponse.data;
+            const options = {
+                key: keyId,
+                amount,
+                currency,
+                name: 'Food Truck',
+                description: 'Food Order Payment',
+                order_id: orderId,
+                prefill: {
+                    name: notes.firstName + " " + notes.lastName,
+                    email: 'rahul@gmial.com',
+                    contact: '9999999999'
+                },
+                theme: {
+                    color: '#F37254'
+                },
+            };
+            const rzp = new window.Razorpay(options);
+            rzp.open();
             console.log(paymentResponse)
         }
         catch (err) {

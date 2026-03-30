@@ -121,14 +121,11 @@ cartRoute.patch("/removecartitem/:resId/:itemId", AuthSignin, async (req, res) =
     }
 })
 
-cartRoute.get("/cartitems/:resId", AuthSignin, async (req, res) => {
+cartRoute.get("/cartitems", AuthSignin, async (req, res) => {
     try {
         const userId = req?.user?._id;
-        const { resId } = req?.params;
-        if (!resId) {
-            throw new Error("Restaurant id not found");
-        }
-        const cartitems = await Cart.findOne({ userId, restaurantId: resId });
+        console.log(userId, "userId")
+        const cartitems = await Cart.findOne({ userId });
         return res.status(200).json(cartitems);
 
     }

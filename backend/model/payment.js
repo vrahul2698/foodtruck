@@ -10,6 +10,11 @@ const paymentSchema = new mongoose.Schema({
         ref: "Restaurant",
         required: true
     },
+    cartId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Cart",
+        required: true
+    },
     orderId: { type: String, required: true },
     paymentId: { type: String },
     currency: { type: String, required: false },

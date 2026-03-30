@@ -9,11 +9,14 @@ const cartSchema = new mongoose.Schema({
         quantity: { type: Number, default: 1 },
         image: String
     }],
+    status: { type: String, enum: ["ACTIVE", "ORDER_PLACED"], default: "ACTIVE" }
 }, { timestamps: true });
 
 cartSchema.virtual("totalPrice").get(function () {
-    return this.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+    if (!this.items || !Array.isArray(this.items)) return 0;
+    return this.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 });
+
 cartSchema.set("toJSON", { virtuals: true })
 cartSchema.set("toObject", { virtuals: true })
 

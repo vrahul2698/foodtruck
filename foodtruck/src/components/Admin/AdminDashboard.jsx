@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
-import DataTable from "../ReUsuableComponents/DataTable"
 import Card from "../User/Card"
 import { restaurantList } from "../../services/restauantService";
 import { Link } from 'react-router-dom';
+
 
 const AdminDashboard = () => {
   const [restaurantsList, setRestaurantsList] = useState([]);
@@ -25,6 +25,9 @@ const AdminDashboard = () => {
     fetchRestaurantsList();
 
   }, []);
+  if(loading) {
+    return <div>Loading...</div>
+  }
   return (
     <div>
       Admin Dashboard

@@ -8,11 +8,11 @@ const cartSlice = createSlice({
     },
     reducers: {
         addItem: (state, action) => {
-            const { menuItem, price, name } = action.payload;
+            const { menuItem, price, name ,image} = action.payload;
             if (state.items[menuItem]) {
                 state.items[menuItem].quantity += 1;
             } else {
-                state.items[menuItem] = { menuItem, name, price, quantity: 1 }
+                state.items[menuItem] = { menuItem, name, price,image, quantity: 1 }
             }
         },
         removeItem: (state, action) => {
