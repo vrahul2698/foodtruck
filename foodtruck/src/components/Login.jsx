@@ -57,10 +57,10 @@ const Login = () => {
       const role = user?.data?.user?.userStatus;
 
       const roleRedirectMap = {
-        USER: "/user",
-        VENDOR: "/vendor",
+        USER: "/user/dashboard",
+        VENDOR: "/vendor/dashboard",
         ADMIN: "/admin/dashboard",
-        DELIVERY: "/delivery",
+        DELIVERY: "/delivery/dashboard",
       };
       console.log(roleRedirectMap[role], "roleRedirectMap[role]")
       navigate(roleRedirectMap[role] || "/login");

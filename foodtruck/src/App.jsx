@@ -36,7 +36,7 @@ function App() {
   const user = useSelector((store) => store?.user);
   const dispatch = useDispatch();
   useEffect(() => {
-    if (!user) return;
+    if (!["ADMIN"].includes(user?.role)) return;
     const fetchCartItems = async () => {
       try {
 
@@ -95,6 +95,7 @@ function App() {
               <Profile />
             } />
             <Route path='dashboard' element={<UserDashboard />} />
+            <Route path='requestaccess' element={<RequestAccess />} />
 
           </Route>
           {/* DELIVERY Protected Roles */}

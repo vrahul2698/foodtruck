@@ -2,26 +2,18 @@ const mongoose = require("mongoose");
 const menuItem = require("./menuItem");
 
 const orderItemSchema = new mongoose.Schema({
-    menuItemId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "MenuItem",
-        required: true
-    },
-    nameSnapshot: String,
-    variantSnapshot: String,
-    priceSnapshot: Number,
-    quantity: {
-        type: Number,
-        required: true,
-        min: 1
-    },
-    total: Number
+    menuItem: { type: mongoose.Schema.Types.ObjectId, ref: "MenuItem" },
+    name: { type: String },
+    price: { type: Number },
+    quantity: { type: Number, default: 1 },
+    image: String
 });
 
 const OrderSchema = new mongoose.Schema({
-    orderNumber: {
-        type: String,
-        unique: true
+    paymentId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "payments",
+        required: true
     },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
