@@ -12,7 +12,6 @@ const AdminDashboard = () => {
       try {
         setLoading(true)
         const res = await restaurantList();
-        console.log(res?.data)
         setRestaurantsList(res?.data?.data ?? []);
       }
       catch (err) {
@@ -25,7 +24,7 @@ const AdminDashboard = () => {
     fetchRestaurantsList();
 
   }, []);
-  if(loading) {
+  if (loading) {
     return <div>Loading...</div>
   }
   return (
@@ -33,22 +32,22 @@ const AdminDashboard = () => {
       Admin Dashboard
       <div className="flex flex-wrap">
         {restaurantsList?.map(data => (
-          <Link  key={data?._id} to={`/admin/restaurant/${data?._id}`}>
-            <Card 
-          key={data?._id} 
-          resName={data?.name} 
-          cuisines={data?.cuisines} 
-          rating={data?.rating} 
-          resImage={data?.restaurantImage} 
-          description={data?.description} 
-          address={data?.address} 
-          />
-           </Link>
+          <Link key={data?._id} to={`/admin/restaurant/${data?._id}`}>
+            <Card
+              key={data?._id}
+              resName={data?.name}
+              cuisines={data?.cuisines}
+              rating={data?.rating}
+              resImage={data?.restaurantImage}
+              description={data?.description}
+              address={data?.address}
+            />
+          </Link>
         ))}
-       
-          </div>
+
+      </div>
     </div>
-      )
+  )
 }
 
-      export default AdminDashboard
+export default AdminDashboard

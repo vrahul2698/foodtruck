@@ -29,9 +29,7 @@ const RestaurantCard = () => {
       try {
 
         const res = await restaurantMenus(id);
-        // console.log(res, "restaurantDetails")
-        setRestaurantDetails(res?.restaurant ?? "")
-
+        setRestaurantDetails(res?.restaurant ?? "");
       }
       catch (err) {
         console.log("Error :" + err?.message)
@@ -39,12 +37,11 @@ const RestaurantCard = () => {
     }
     fetchRestaurantData();
   }, [])
+
   useEffect(() => {
     const fetchCartItems = async () => {
       try {
-
         const res = await getCartItems();
-        console.log(res, "cartItems")
         dispatch(getRestaurantId(res?.restaurantId ?? ""));
         const normalizeItems = (itemsArray) => {
           return itemsArray.reduce((acc, item) => {

@@ -5,7 +5,6 @@ import Feed from './components/Feed'
 import Login from './components/Login'
 import Profile from './components/profile'
 import { useDispatch, useSelector } from 'react-redux'
-import appStore from './utils/appStore'
 import RequestAccess from './components/RequestAccess'
 import RestaurantMaster from './components/RestaurantMaster';
 import MenuCategory from './components/MenuCategory'
@@ -26,93 +25,110 @@ import AddToCart from './components/User/AddToCart'
 import { useEffect } from 'react'
 import { getCartItems } from './services/cartService'
 import { getItems, getRestaurantId } from './utils/cartSlice'
+import CommonLayout from './components/CommonLayout'
+import PrivacyPolicy from './components/FooterPages/PrivacyPolicy';
+import TermsOfService from './components/FooterPages/TermsOfService';
+import RefundPolicy from './components/FooterPages/RefundPolicy';
+import ContactUs from './components/FooterPages/ContactUs';
 
 
 function App() {
   const user = useSelector((store) => store?.user);
   const dispatch = useDispatch();
-    useEffect(() => {
-      if(!user) return;
-      const fetchCartItems = async () => {
-        try {
-  
-          const res = await getCartItems();
-          console.log(res, "cartItems")
-          dispatch(getRestaurantId(res?.restaurantId ?? ""));
-          const normalizeItems = (itemsArray) => {
-            return itemsArray.reduce((acc, item) => {
-              acc[item.menuItem] = item; // array → object
-              return acc;
-            }, {});
-          };
-          dispatch(getItems(normalizeItems(res?.items ?? {})))
-  
-        }
-        catch (err) {
-          console.log("Error :" + err?.message)
-        }
+  useEffect(() => {
+    if (!user) return;
+    const fetchCartItems = async () => {
+      try {
+
+        const res = await getCartItems();
+        dispatch(getRestaurantId(res?.restaurantId ?? ""));
+        const normalizeItems = (itemsArray) => {
+          return itemsArray.reduce((acc, item) => {
+            acc[item.menuItem] = item; // array → object
+            return acc;
+          }, {});
+        };
+        dispatch(getItems(normalizeItems(res?.items ?? {})))
+
       }
-      fetchCartItems();
-    }, [user])
+      catch (err) {
+        console.log("Error :" + err?.message)
+      }
+    }
+    fetchCartItems();
+  }, [user])
   return (
     <>
-        <BrowserRouter>
-          <Routes>
+      <BrowserRouter>
+        <Routes>
+          <Route element={<CommonLayout />}>
             <Route path='/' element={<Login />} />
             <Route path='/login' element={<Login />} />
-            {/* VENDOR Protected Roles */}
-            <Route path='/vendor' element={
-              <RoleProtectedRoutes allowedRoles={["VENDOR"]}
-              >
-                <VendorLayout />
-              </RoleProtectedRoutes>
-            }>
-              <Route path='dashboard' element={<VendorDashboard />} />
-              <Route path='restaurantmaster' element={<RestaurantMaster />} />
-              <Route path='menucategory' element={<MenuCategory />} />
-              <Route path='menuitems' element={<MenuItems />} />
-              <Route path='menuvariants' element={<MenuVariants />} />
-              <Route path='profile' element={
-                <Profile />
-              } />
-            </Route>
-            {/* USER Protected Roles */}
-            <Route path='/user' element={
-              <RoleProtectedRoutes allowedRoles={["USER"]}>
-                <UserLayout />
-              </RoleProtectedRoutes>
-            }>
-              <Route path='profile' element={
-                <Profile />
-              } />
-            </Route>
+            <Route path='/privacy-policy' element={<PrivacyPolicy />} />
+            <Route path='/terms-of-service' element={<TermsOfService />} />
+            <Route path='/refund-policy' element={<RefundPolicy />} />
+            <Route path='/contact-us' element={<ContactUs />} />
+          </Route>
+          {/* VENDOR Protected Roles */}
+          <Route path='/vendor' element={
+            <RoleProtectedRoutes allowedRoles={["VENDOR"]}
+            >
+              <VendorLayout />
+            </RoleProtectedRoutes>
+          }>
+            <Route path='dashboard' element={<VendorDashboard />} />
+            <Route path='restaurantmaster' element={<RestaurantMaster />} />
+            <Route path='menucategory' element={<MenuCategory />} />
+            <Route path='menuitems' element={<MenuItems />} />
+            <Route path='menuvariants' element={<MenuVariants />} />
+            <Route path='profile' element={
+              <Profile />
+            } />
+          </Route>
+          {/* USER Protected Roles */}
+          <Route path='/user' element={
+            <RoleProtectedRoutes allowedRoles={["USER"]}>
+              <UserLayout />
+            </RoleProtectedRoutes>
+          }>
+            <Route path='profile' element={
+              <Profile />
+            } />
             <Route path='dashboard' element={<UserDashboard />} />
-            {/* DELIVERY Protected Roles */}
-            <Route path='/delivery' element={
-              <RoleProtectedRoutes allowedRoles={["DELIVERY"]}>
-                <DeliveryLayout />
-              </RoleProtectedRoutes>
-            }>
-              <Route path='dashboard' element={<DeliveryDashboard />} />
-            </Route>
-            {/* ADMIN Protected Roles */}
-            <Route path='/admin' element={
-              <RoleProtectedRoutes allowedRoles={["ADMIN"]}>
-                <AdminLayout />
-              </RoleProtectedRoutes>
-            }>
-              <Route path='requestedroleslist' element={<RequestedRolesList />} />
-              <Route path='requestaccess' element={<RequestAccess />} />
-              <Route path='dashboard' element={<AdminDashboard />} />
-              <Route path='restaurant/:id' element={<RestaurantCard />} />
-              <Route path='addtocart' element={<AddToCart />} />
-            </Route>
-            {/* </Route> */}
 
-            {/* </Route> */}
-          </Routes>
-        </BrowserRouter>
-     
+          </Route>
+          {/* DELIVERY Protected Roles */}
+          <Route path='/delivery' element={
+            <RoleProtectedRoutes allowedRoles={["DELIVERY"]}>
+              <DeliveryLayout />
+            </RoleProtectedRoutes>
+          }>
+            <Route path='dashboard' element={<DeliveryDashboard />} />
+            <Route path='profile' element={
+              <Profile />
+            } />
+          </Route>
+          {/* ADMIN Protected Roles */}
+          <Route path='/admin' element={
+            <RoleProtectedRoutes allowedRoles={["ADMIN"]}>
+              <AdminLayout />
+            </RoleProtectedRoutes>
+          }>
+            <Route path='requestedroleslist' element={<RequestedRolesList />} />
+            <Route path='requestaccess' element={<RequestAccess />} />
+            <Route path='dashboard' element={<AdminDashboard />} />
+            <Route path='restaurant/:id' element={<RestaurantCard />} />
+            <Route path='addtocart' element={<AddToCart />} />
+            <Route path='profile' element={
+              <Profile />
+            } />
+          </Route>
+          {/* </Route> */}
+
+          {/* </Route> */}
+        </Routes>
+      </BrowserRouter>
+
     </>
   )
 }
